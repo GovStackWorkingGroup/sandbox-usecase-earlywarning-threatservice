@@ -1,0 +1,17 @@
+userService:
+  name: "weather-event-service"
+  port: 5432
+
+userStatefulset:
+  name: "weather-event-service"
+  spec:
+    containers:
+      image: "postgres:14-alpine"
+      mountPath: "/var/lib/postgresql/data"
+      mountName: "pgdata"
+      storage: 1Gi
+      name: postgres
+      username: "user"
+      password: "password"
+      database:
+        name: "weather-event-service-db"

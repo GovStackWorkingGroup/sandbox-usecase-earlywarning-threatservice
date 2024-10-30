@@ -1,0 +1,12 @@
+dependencies:
+- name: user-service
+  repository: ""
+  version: 0.1.0
+- name: weather-event-service
+  repository: ""
+  version: 0.1.0
+- name: kafka
+  repository: ""
+  version: 0.1.0
+digest: sha256:2b3c4472ecc2ae10301af2590ee108d45cf91626574f9e5e6f6eb1ac1194bfb8
+generated: "2024-10-14T13:45:17.261020759+03:00"

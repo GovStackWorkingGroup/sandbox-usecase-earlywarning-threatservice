@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.userService.name }}
+  labels:
+    app:  {{ .Values.userService.name }}
+spec:
+  replicas: 1
+  serviceName:  {{ .Values.userService.name }}
+  selector:
+    matchLabels:
+      app:  {{ .Values.userService.name }}
+  template:
+    metadata:
+      labels:
+        app:  {{ .Values.userService.name }}
+    spec:
+      containers:
+        - image:  {{ .Values.userStatefulset.spec.containers.image }}
+          name: {{ .Values.userStatefulset.spec.containers.name }}
+          env:
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.userStatefulset.spec.containers.password }}
+            - name: POSTGRES_DB
+              value: {{ .Values.userStatefulset.spec.containers.database.name }}
+            - name: POSTGRES_USER
+              value: {{ .Values.userStatefulset.spec.containers.username }}
+          ports:
+            - containerPort: {{ .Values.userService.port }}
+              name: {{ .Values.userStatefulset.spec.containers.name }}
+          volumeMounts:
+            - name: {{ .Values.userStatefulset.spec.containers.mountName }}
+              mountPath: {{ .Values.userStatefulset.spec.containers.mountPath }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Values.userStatefulset.spec.containers.mountName }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.userStatefulset.spec.containers.storage }}
