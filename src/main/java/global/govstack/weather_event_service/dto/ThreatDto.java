@@ -1,18 +1,7 @@
 package global.govstack.weather_event_service.dto;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
-@Builder
-public record ThreatDto(String type,
-                        String severity,
-                        LocalDateTime periodStart,
-                        LocalDateTime periodEnd,
-                        String country,
-                        String county,
-                        String range) {
+public record ThreatDto(String type, String severity, List<String> affectedCountries, List<String> affectedCounties, String range, String periodStart, String periodEnd) {
 }

@@ -19,11 +19,16 @@ public class ThreatEvent {
   private String type;
   @Enumerated(EnumType.STRING)
   private ThreatSeverity severity;
-  private String country;
-  private String county;
   private String range;
   private String notes;
   private LocalDateTime periodStart;
   private LocalDateTime periodEnd;
   private LocalDateTime createdAt;
+
+  @PrePersist
+  protected void onCreate() {
+    this.threatUUID = UUID.randomUUID();
+    this.createdAt = LocalDateTime.now();
+  }
+
 }

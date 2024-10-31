@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface ThreatEventRepository extends JpaRepository<ThreatEvent, Long> {
 
-    public List<ThreatEvent> getAllThreatsByCountry(String country);
+//    public List<ThreatEvent> getAllThreatsByCountry(String country);
 }
