@@ -1,23 +1,30 @@
 package global.govstack.weather_event_service.repository.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.Set;
 
+@Getter
+@Setter
 @Entity
-@Data
 @Table(name = "country_threat")
 public class CountryThreat {
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "country_threat_seq")
   @SequenceGenerator(name = "country_threat_seq", allocationSize = 1)
   private Long id;
-  @ManyToOne
+
+
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "threat_id", nullable = false)
   private ThreatEvent threatEvent;
   private Long countryId;
   private String countryName;
+
+  @OneToMany(mappedBy = "countryThreat", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private Set<CountyCountry> affectedCounties;
+
 
 }

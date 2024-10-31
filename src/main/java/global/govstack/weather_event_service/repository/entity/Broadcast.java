@@ -3,10 +3,12 @@ package global.govstack.weather_event_service.repository.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "broadcast")
 public class Broadcast {
 
