@@ -10,4 +10,5 @@ public interface ThreatControllerInterface {
 
     @GetMapping(path = "/getAllThreatsForCountry")
     List<ThreatDto> getAllThreatsForCountry(@RequestParam String country);
+
 }

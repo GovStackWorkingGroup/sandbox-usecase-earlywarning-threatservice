@@ -1,5 +1,6 @@
 package global.govstack.weather_event_service.mapper;
 
+import global.govstack.weather_event_service.dto.KafkaThreatDto;
 import global.govstack.weather_event_service.repository.entity.ThreatEvent;
 import global.govstack.weather_event_service.dto.ThreatDto;
 import org.mapstruct.Mapper;
@@ -11,5 +12,6 @@ public interface ThreatMapper {
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
-  ThreatEvent dtoToEntity(ThreatDto threatDto);
+  @Mapping(target = "affectedCountries", ignore = true)
+  ThreatEvent dtoToEntity(KafkaThreatDto threatDto);
 }

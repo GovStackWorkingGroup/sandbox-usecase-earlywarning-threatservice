@@ -1,14 +1,17 @@
 package global.govstack.weather_event_service.repository.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+
+@Getter
+@Setter
 @Entity
-@Data
 @Table(name = "threat")
 public class ThreatEvent {
   @Id
@@ -19,11 +22,19 @@ public class ThreatEvent {
   private String type;
   @Enumerated(EnumType.STRING)
   private ThreatSeverity severity;
-  private String country;
-  private String county;
+
+  @OneToMany(mappedBy = "threatEvent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private Set<CountryThreat> affectedCountries;
   private String range;
   private String notes;
   private LocalDateTime periodStart;
   private LocalDateTime periodEnd;
   private LocalDateTime createdAt;
+
+  @PrePersist
+  protected void onCreate() {
+    this.threatUUID = UUID.randomUUID();
+    this.createdAt = LocalDateTime.now();
+  }
+
 }

@@ -23,4 +23,5 @@ public class ThreatControllerImpl implements ThreatControllerInterface {
     public List<ThreatDto> getAllThreatsForCountry(String country) {
         return this.threatService.getAllThreats(country);
     }
+
 }
