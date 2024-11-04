@@ -30,15 +30,15 @@ CREATE TABLE IF NOT EXISTS "broadcast"
 (
     id           BIGINT NOT NULL DEFAULT nextval('broadcast_id_seq') PRIMARY KEY,
     broadcastUUID UUID NOT NULL,
+    threat_id BIGINT NOT NULL,
     title    VARCHAR(255) NOT NULL,
     status   VARCHAR(255) NOT NULL,
-    country  VARCHAR(255) NOT NULL,
-    county   VARCHAR(255) NOT NULL,
-    periodStart TIMESTAMP NOT NULL,
-    periodEnd TIMESTAMP NOT NULL,
+    notes VARCHAR(255),
     englishMsg TEXT,
     swahiliMsg TEXT,
-    createdAt TIMESTAMP NOT NULL DEFAULT NOW()
+    createdAt TIMESTAMP NOT NULL DEFAULT NOW(),
+    initiated TIMESTAMP,
+    FOREIGN KEY (threat_id) REFERENCES threat(id)
     );
 
 
@@ -72,4 +72,3 @@ CREATE TABLE IF NOT EXISTS "county_country" (
     countyName  VARCHAR(255) NOT NULL,
     FOREIGN KEY (country_threat_id) REFERENCES country_threat(id)
     );
-
