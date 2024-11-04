@@ -1,5 +1,6 @@
 package global.govstack.weather_event_service.controller;
 
+import global.govstack.weather_event_service.dto.BroadcastCreateDto;
 import global.govstack.weather_event_service.dto.BroadcastDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -20,5 +21,5 @@ public interface BroadcastControllerInterface {
   @ResponseBody
   void saveBroadcast(
       @RequestParam UUID userUUID,
-      @RequestBody BroadcastDto broadcastDto);
+      @RequestBody BroadcastCreateDto broadcastDto);
 }

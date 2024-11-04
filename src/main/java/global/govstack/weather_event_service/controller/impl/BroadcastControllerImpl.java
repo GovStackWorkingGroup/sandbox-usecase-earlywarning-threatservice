@@ -1,6 +1,7 @@
 package global.govstack.weather_event_service.controller.impl;
 
 import global.govstack.weather_event_service.controller.BroadcastControllerInterface;
+import global.govstack.weather_event_service.dto.BroadcastCreateDto;
 import global.govstack.weather_event_service.dto.BroadcastDto;
 import global.govstack.weather_event_service.service.BroadcastService;
 
@@ -31,7 +32,7 @@ public class BroadcastControllerImpl implements BroadcastControllerInterface {
     }
 
     @Override
-    public void saveBroadcast(UUID userUUID, BroadcastDto broadcastDto) {
+    public void saveBroadcast(UUID userUUID, BroadcastCreateDto broadcastDto) {
         this.broadcastService.saveBroadcast(userUUID, broadcastDto);
     }
 }
