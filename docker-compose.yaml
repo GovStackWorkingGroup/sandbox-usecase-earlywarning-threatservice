@@ -9,6 +9,8 @@ services:
     restart: always
     ports:
       - '8080:8080'
+    networks:
+      - shared_network
     environment:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://database:5432/threat-db"
       SPRING_DATASOURCE_USERNAME: "user"
@@ -26,6 +28,8 @@ services:
       MYSQL_ROOT_PASSWORD: 'root-pass'
     ports:
       - '5432:5432'
+    networks:
+      - shared_network
     expose:
       - '5432'
     volumes:
@@ -35,3 +39,7 @@ services:
 volumes:
   user-db:
 #  backend:
+
+networks:
+  shared_network:
+    external: true

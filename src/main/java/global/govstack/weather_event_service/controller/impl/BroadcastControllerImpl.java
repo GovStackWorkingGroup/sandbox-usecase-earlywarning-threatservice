@@ -4,12 +4,11 @@ import global.govstack.weather_event_service.controller.BroadcastControllerInter
 import global.govstack.weather_event_service.dto.BroadcastCreateDto;
 import global.govstack.weather_event_service.dto.BroadcastDto;
 import global.govstack.weather_event_service.service.BroadcastService;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
-
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/api/v1/broadcast/")

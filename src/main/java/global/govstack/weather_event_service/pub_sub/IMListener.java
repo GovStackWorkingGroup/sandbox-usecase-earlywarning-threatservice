@@ -1,10 +1,12 @@
 package global.govstack.weather_event_service.pub_sub;
 
 import global.govstack.weather_event_service.service.ThreatService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class IMListener {
     private static final String THREAT_TOPIC = "threats-topic";
 
@@ -14,9 +16,9 @@ public class IMListener {
     this.threatService = threatService;
   }
 
-    @KafkaListener(groupId = "test", topics = THREAT_TOPIC)
+    @KafkaListener(groupId = "threat-service-listener", topics = THREAT_TOPIC)
     public void handleIncomingThreatFromIM(String threatMessage){
-        //TODO currently works with localhost:9092 kafka, but not with the cross container communication
+        log.info("Incoming message from threats-topic");
         this.threatService.handleIncomingThreatFromIM(threatMessage);
     }
 }

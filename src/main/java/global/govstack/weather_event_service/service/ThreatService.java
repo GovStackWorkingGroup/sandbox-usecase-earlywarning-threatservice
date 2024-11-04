@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 @Service
 public class ThreatService {
 
-    private final IMPublisher publisher;
     private final ThreatEventRepository threatEventRepository;
     private final ObjectMapper mapper;
     private final ThreatMapper threatMapper;
@@ -33,8 +32,7 @@ public class ThreatService {
     private final CountyCountryRepository countyCountryRepository;
     private final UserService userService;
 
-    public ThreatService(IMPublisher publisher, ObjectMapper mapper, ThreatEventRepository threatEventRepository, ThreatMapper threatMapper, CountryThreatRepository countryThreatRepository, CountyCountryRepository countyCountryRepository, UserService userService) {
-        this.publisher = publisher;
+    public ThreatService(ObjectMapper mapper, ThreatEventRepository threatEventRepository, ThreatMapper threatMapper, CountryThreatRepository countryThreatRepository, CountyCountryRepository countyCountryRepository, UserService userService) {
         this.mapper = mapper;
         this.threatEventRepository = threatEventRepository;
         this.threatMapper = threatMapper;
@@ -45,16 +43,16 @@ public class ThreatService {
 
     public void handleIncomingThreatFromIM(String threatMessage) {
         final KafkaThreatDto kafkaThreatDto = this.mapIncomingMessage(threatMessage);
-        List<CountryDto> allCountries = userService.getAllCountries();
-        ThreatEvent threatEvent = this.threatMapper.dtoToEntity(kafkaThreatDto);
-        ThreatEvent savedThreat = this.threatEventRepository.save(threatEvent);
+        final List<CountryDto> allCountries = userService.getAllCountries();
+        final ThreatEvent threatEvent = this.threatMapper.dtoToEntity(kafkaThreatDto);
+        final ThreatEvent savedThreat = this.threatEventRepository.save(threatEvent);
         kafkaThreatDto.affectedCountries().forEach(country -> {
             CountryDto countryDto = allCountries.stream().filter(c -> c.name().equals(country)).findFirst().orElseThrow();
             CountryThreat countryThreat = new CountryThreat();
             countryThreat.setThreatEvent(savedThreat);
             countryThreat.setCountryId(countryDto.id());
             countryThreat.setCountryName(countryDto.name());
-            CountryThreat countryThreatSaved = countryThreatRepository.save(countryThreat);
+            final CountryThreat countryThreatSaved = countryThreatRepository.save(countryThreat);
             countryDto.counties().forEach(county -> {
                 CountyCountry countyCountry = new CountyCountry();
                 countyCountry.setCountyId(county.countyId());
@@ -65,12 +63,9 @@ public class ThreatService {
         });
     }
 
-    public void publishBroadcast(BroadcastDto broadcastDto) {
-        this.publisher.publishBroadcast(broadcastDto);
-    }
 
     public List<ThreatDto> getAllThreats(String country) {
-        List<ThreatEvent> allThreatsByCountry = this.threatEventRepository.getAllThreatsByCountry(country);
+        final List<ThreatEvent> allThreatsByCountry = this.threatEventRepository.getAllThreatsByCountry(country);
 
         return allThreatsByCountry.stream().map(this.threatMapper::entityToDto).collect(Collectors.toList());
     }
@@ -80,7 +75,7 @@ public class ThreatService {
         try {
             return this.mapper.readValue(threatMessage, KafkaThreatDto.class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Mapping incoming message failed" + e);
         }
     }
 

@@ -3,12 +3,13 @@ package global.govstack.weather_event_service.repository.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Getter
-@Setter
+@Data
 @Table(name = "broadcast")
 public class Broadcast {
 
@@ -34,6 +35,5 @@ public class Broadcast {
   @PrePersist
   protected void onCreate() {
     this.broadcastUUID = UUID.randomUUID();
-    this.createdAt = LocalDateTime.now();
   }
 }
