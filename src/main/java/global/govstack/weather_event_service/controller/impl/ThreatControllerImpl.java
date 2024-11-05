@@ -3,10 +3,10 @@ package global.govstack.weather_event_service.controller.impl;
 import global.govstack.weather_event_service.controller.ThreatControllerInterface;
 import global.govstack.weather_event_service.dto.ThreatDto;
 import global.govstack.weather_event_service.service.ThreatService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(path = "/api/v1/threat/")
@@ -20,8 +20,7 @@ public class ThreatControllerImpl implements ThreatControllerInterface {
     }
 
     @Override
-    public List<ThreatDto> getAllThreatsForCountry(String country) {
-        return this.threatService.getAllThreats(country);
+    public Page<ThreatDto> getAllThreatsForCountry(String country, Pageable pageable) {
+        return this.threatService.getAllThreats(country, pageable);
     }
-
 }

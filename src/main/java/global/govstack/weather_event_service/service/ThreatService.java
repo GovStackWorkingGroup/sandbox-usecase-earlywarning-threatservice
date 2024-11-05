@@ -2,11 +2,9 @@ package global.govstack.weather_event_service.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import global.govstack.weather_event_service.dto.BroadcastDto;
 import global.govstack.weather_event_service.dto.KafkaThreatDto;
 import global.govstack.weather_event_service.dto.ThreatDto;
 import global.govstack.weather_event_service.mapper.ThreatMapper;
-import global.govstack.weather_event_service.pub_sub.IMPublisher;
 import global.govstack.weather_event_service.repository.CountryThreatRepository;
 import global.govstack.weather_event_service.repository.CountyCountryRepository;
 import global.govstack.weather_event_service.repository.ThreatEventRepository;
@@ -15,11 +13,12 @@ import global.govstack.weather_event_service.repository.entity.CountyCountry;
 import global.govstack.weather_event_service.repository.entity.ThreatEvent;
 import global.govstack.weather_event_service.service.location.CountryDto;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -64,10 +63,9 @@ public class ThreatService {
     }
 
 
-    public List<ThreatDto> getAllThreats(String country) {
-        final List<ThreatEvent> allThreatsByCountry = this.threatEventRepository.getAllThreatsByCountry(country);
-
-        return allThreatsByCountry.stream().map(this.threatMapper::entityToDto).collect(Collectors.toList());
+    public Page<ThreatDto> getAllThreats(String country, Pageable page) {
+        final Page<ThreatEvent> allThreatsByCountry = this.threatEventRepository.getAllThreatsByCountry(country, page);
+        return allThreatsByCountry.map(this.threatMapper::entityToDto);
     }
 
     private KafkaThreatDto mapIncomingMessage(String threatMessage) {
