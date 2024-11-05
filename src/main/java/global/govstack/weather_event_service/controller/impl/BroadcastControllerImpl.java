@@ -4,10 +4,11 @@ import global.govstack.weather_event_service.controller.BroadcastControllerInter
 import global.govstack.weather_event_service.dto.BroadcastCreateDto;
 import global.govstack.weather_event_service.dto.BroadcastDto;
 import global.govstack.weather_event_service.service.BroadcastService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -21,8 +22,8 @@ public class BroadcastControllerImpl implements BroadcastControllerInterface {
     }
 
     @Override
-    public List<BroadcastDto> getAllBroadcasts() {
-        return this.broadcastService.getAllBroadcasts();
+    public Page<BroadcastDto> getAllBroadcasts(Pageable pageable) {
+        return this.broadcastService.getAllBroadcasts(pageable);
     }
 
     @Override
