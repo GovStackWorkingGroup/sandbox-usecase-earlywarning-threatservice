@@ -8,14 +8,13 @@ import java.util.UUID;
 public record BroadcastDto(
         Long id,
         UUID broadcastUUID,
-        ThreatDto threatDto,
+        Long threatId,
         String title,
         EventStatus status,
         String notes,
-        LocalDateTime periodStart,
-        LocalDateTime periodEnd,
         String englishMsg,
         String swahiliMsg,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        LocalDateTime initiated
 ) {
 }

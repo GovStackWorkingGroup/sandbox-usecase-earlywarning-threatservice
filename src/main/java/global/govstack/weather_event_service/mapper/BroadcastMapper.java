@@ -10,9 +10,8 @@ import org.mapstruct.Mapping;
 public interface BroadcastMapper {
   BroadcastDto entityToDto(Broadcast broadcast);
 
-  @Mapping(target = "createdAt", ignore = true)
   Broadcast dtoToEntity(BroadcastDto broadcastDto);
 
-  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
   Broadcast createDtoToEntity(BroadcastCreateDto broadcastCreateDto);
 }

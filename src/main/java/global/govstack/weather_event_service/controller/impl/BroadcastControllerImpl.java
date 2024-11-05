@@ -32,7 +32,12 @@ public class BroadcastControllerImpl implements BroadcastControllerInterface {
     }
 
     @Override
-    public void saveBroadcast(UUID userUUID, BroadcastCreateDto broadcastDto) {
-        this.broadcastService.saveBroadcast(userUUID, broadcastDto);
+    public BroadcastDto saveBroadcast(UUID userUUID, BroadcastCreateDto broadcastDto) {
+       return this.broadcastService.saveBroadcast(userUUID, broadcastDto);
+    }
+
+    @Override
+    public BroadcastDto updateBroadcast(long id, UUID userUUID, BroadcastDto broadcastDto) {
+       return this.broadcastService.saveAndPublish(userUUID, broadcastDto);
     }
 }
