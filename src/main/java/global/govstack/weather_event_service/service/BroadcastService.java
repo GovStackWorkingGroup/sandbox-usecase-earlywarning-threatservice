@@ -9,6 +9,8 @@ import global.govstack.weather_event_service.repository.entity.Broadcast;
 import global.govstack.weather_event_service.repository.entity.EventStatus;
 import global.govstack.weather_event_service.repository.entity.ThreatEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -16,10 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static global.govstack.weather_event_service.repository.entity.EventStatus.DRAFT;
 import static global.govstack.weather_event_service.repository.entity.EventStatus.PUBLISHED;
@@ -44,10 +44,8 @@ public class BroadcastService {
         this.threatService = threatService;
     }
 
-    public List<BroadcastDto> getAllBroadcasts() {
-        return this.broadcastRepository.findAll().stream()
-                .map(this.broadcastMapper::entityToDto)
-                .collect(Collectors.toList());
+    public Page<BroadcastDto> getAllBroadcasts(Pageable pageable) {
+        return this.broadcastRepository.findAll(pageable).map(this.broadcastMapper::entityToDto);
     }
 
     public Optional<BroadcastDto> getBroadcastById(UUID broadcastUUID) {
