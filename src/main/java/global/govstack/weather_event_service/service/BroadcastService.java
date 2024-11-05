@@ -6,19 +6,23 @@ import global.govstack.weather_event_service.mapper.BroadcastMapper;
 import global.govstack.weather_event_service.pub_sub.IMPublisher;
 import global.govstack.weather_event_service.repository.BroadcastRepository;
 import global.govstack.weather_event_service.repository.entity.Broadcast;
+import global.govstack.weather_event_service.repository.entity.EventStatus;
 import global.govstack.weather_event_service.repository.entity.ThreatEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static global.govstack.weather_event_service.repository.entity.EventStatus.DRAFT;
+import static global.govstack.weather_event_service.repository.entity.EventStatus.PUBLISHED;
 
 @Slf4j
 @Service
@@ -51,20 +55,40 @@ public class BroadcastService {
     }
 
     public BroadcastDto saveBroadcast(UUID userUUID, BroadcastCreateDto broadcastDto) {
-        boolean canBroadcast = userService.canBroadcast(userUUID);
-        if (!canBroadcast) {
-            log.error("Forbidden to broadcast");
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden to broadcast");
-        }
-        final Broadcast broadcast = this.broadcastMapper.createDtoToEntity(broadcastDto);
-        final ThreatEvent threatEvent = threatService.getThreatById(broadcastDto.threatId())
+        return saveOrUpdateBroadcast(userUUID, this.broadcastMapper.createDtoToEntity(broadcastDto), DRAFT, broadcastDto.threatId());
+    }
+
+    public BroadcastDto updateBroadcast(UUID userUUID, BroadcastDto broadcastDto) {
+        return saveOrUpdateBroadcast(userUUID, this.broadcastMapper.dtoToEntity(broadcastDto), broadcastDto.status(), broadcastDto.threatId());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    protected BroadcastDto saveOrUpdateBroadcast(UUID userUUID, Broadcast broadcast, EventStatus status, long threatId) {
+        isAdminHasPermission(userUUID);
+        final ThreatEvent threatEvent = threatService.getThreatById(threatId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Threat not found"));
         broadcast.setThreatEvent(threatEvent);
-        broadcast.setStatus(DRAFT);
-
+        broadcast.setStatus(status);
+        if (status.equals(PUBLISHED)) {
+            broadcast.setInitiated(LocalDateTime.now());
+        }
         final Broadcast savedBroadcast = broadcastRepository.save(broadcast);
-        final BroadcastDto savedBroadcastFullDto = this.broadcastMapper.entityToDto(savedBroadcast);
-        this.imPublisher.publishBroadcast(savedBroadcastFullDto);
-        return savedBroadcastFullDto;
+        return this.broadcastMapper.entityToDto(savedBroadcast);
+    }
+
+    private void isAdminHasPermission(UUID userUUID) {
+        boolean canBroadcast = userService.canBroadcast(userUUID);
+        if (!canBroadcast) {
+            log.error("Broadcast is forbidden");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Broadcast is forbidden");
+        }
+    }
+
+    public BroadcastDto saveAndPublish(UUID userUUID, BroadcastDto broadcastDto) {
+        BroadcastDto savedBroadcast = updateBroadcast(userUUID, broadcastDto);
+        if (savedBroadcast.status().equals(PUBLISHED)) {
+            this.imPublisher.publishBroadcast(savedBroadcast);
+        }
+        return savedBroadcast;
     }
 }
