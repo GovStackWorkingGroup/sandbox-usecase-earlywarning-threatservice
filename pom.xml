@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>global.govstack</groupId>
-	<artifactId>weather-event-service</artifactId>
+	<artifactId>threat-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>weather-event-service</name>
+	<name>threat-service</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
