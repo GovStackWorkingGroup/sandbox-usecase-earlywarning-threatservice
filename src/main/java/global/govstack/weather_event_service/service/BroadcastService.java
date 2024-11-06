@@ -2,12 +2,11 @@ package global.govstack.weather_event_service.service;
 
 import global.govstack.weather_event_service.dto.BroadcastCreateDto;
 import global.govstack.weather_event_service.dto.BroadcastDto;
+import global.govstack.weather_event_service.dto.KafkaBroadcastDto;
 import global.govstack.weather_event_service.mapper.BroadcastMapper;
 import global.govstack.weather_event_service.pub_sub.IMPublisher;
 import global.govstack.weather_event_service.repository.BroadcastRepository;
-import global.govstack.weather_event_service.repository.entity.Broadcast;
-import global.govstack.weather_event_service.repository.entity.EventStatus;
-import global.govstack.weather_event_service.repository.entity.ThreatEvent;
+import global.govstack.weather_event_service.repository.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -85,7 +85,23 @@ public class BroadcastService {
     public BroadcastDto saveAndPublish(UUID userUUID, BroadcastDto broadcastDto) {
         BroadcastDto savedBroadcast = updateBroadcast(userUUID, broadcastDto);
         if (savedBroadcast.status().equals(PUBLISHED)) {
-            this.imPublisher.publishBroadcast(savedBroadcast);
+            final var threatById = threatService.getThreatById(broadcastDto.threatId()).get();
+            List<Long> countryIds = threatById.getAffectedCountries().stream().map(CountryThreat::getCountryId).toList();
+            List<Long> countyIds = threatById.getAffectedCountries().stream()
+                    .flatMap(item -> item.getAffectedCounties().stream())
+                    .map(CountyCountry::getCountyId)
+                    .toList();
+            var kafkaBroadcastDto = new KafkaBroadcastDto(
+                    broadcastDto.broadcastUUID(),
+                    broadcastDto.title(),
+                    threatById.getPeriodStart(),
+                    threatById.getPeriodEnd(),
+                    broadcastDto.englishMsg(),
+                    broadcastDto.swahiliMsg(),
+                    countryIds,
+                    countyIds
+            );
+            this.imPublisher.publishBroadcast(kafkaBroadcastDto);
         }
         return savedBroadcast;
     }
