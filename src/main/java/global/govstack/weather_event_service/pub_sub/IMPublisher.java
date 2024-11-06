@@ -2,7 +2,7 @@ package global.govstack.weather_event_service.pub_sub;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import global.govstack.weather_event_service.dto.BroadcastDto;
+import global.govstack.weather_event_service.dto.KafkaBroadcastDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -22,7 +22,7 @@ public class IMPublisher {
     this.mapper = mapper;
   }
 
-  public void publishBroadcast(BroadcastDto broadcastDto) {
+  public void publishBroadcast(KafkaBroadcastDto broadcastDto) {
     log.info("Sending broadcast to IM");
     try {
       this.kafkaTemplate.send(

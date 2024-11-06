@@ -14,8 +14,8 @@ public interface BroadcastControllerInterface {
     @GetMapping(path = "/getAll")
     Page<BroadcastDto> getAllBroadcasts(Pageable pageable);
 
-  @GetMapping(path = "/getBroadcastDetails")
-  BroadcastDto getBroadcastDetails(@RequestParam UUID broadcastUUID);
+    @GetMapping(path = "/getBroadcastDetails")
+    BroadcastDto getBroadcastDetails(@RequestParam UUID broadcastUUID);
 
     @PostMapping(path = "/saveBroadcast")
     @ResponseStatus(HttpStatus.CREATED)

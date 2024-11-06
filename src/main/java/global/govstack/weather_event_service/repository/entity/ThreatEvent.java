@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -24,7 +24,7 @@ public class ThreatEvent {
   private ThreatSeverity severity;
 
   @OneToMany(mappedBy = "threatEvent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private Set<CountryThreat> affectedCountries;
+  private List<CountryThreat> affectedCountries;
   private String range;
   private String notes;
   private LocalDateTime periodStart;
