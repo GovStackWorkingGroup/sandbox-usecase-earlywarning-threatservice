@@ -1,5 +1,6 @@
 package global.govstack.threat_service.service;
 
+import global.govstack.threat_service.controller.exception.NotFoundException;
 import global.govstack.threat_service.dto.BroadcastCreateDto;
 import global.govstack.threat_service.dto.BroadcastDto;
 import global.govstack.threat_service.dto.KafkaBroadcastDto;
@@ -39,31 +40,29 @@ public class BroadcastService {
         return broadcastRepository.findAll(pageable).map(broadcastMapper::entityToDto);
     }
 
-    public Optional<BroadcastDto> getBroadcastByUuid(UUID broadcastUUID) {
-        return broadcastRepository.findBroadcastByBroadcastUUID(broadcastUUID).map(broadcastMapper::entityToDto);
+    public Optional<BroadcastDto> getBroadcastById(UUID broadcastId) {
+        return broadcastRepository.findBroadcastByBroadcastUUID(broadcastId).map(broadcastMapper::entityToDto);
     }
 
-    public BroadcastDto saveBroadcast(UUID userUUID, BroadcastCreateDto broadcastDto) {
-        return saveOrUpdateBroadcast(userUUID, broadcastMapper.createDtoToEntity(broadcastDto), BroadcastStatus.DRAFT, broadcastDto.threatId());
+    public BroadcastDto saveBroadcast(UUID userId, BroadcastCreateDto broadcastDto) {
+        return saveOrUpdateBroadcast(userId, broadcastMapper.createDtoToEntity(broadcastDto), BroadcastStatus.DRAFT, broadcastDto.threatId());
     }
 
-    public BroadcastDto updateBroadcast(UUID userUUID, BroadcastDto broadcastDto) {
-        return saveOrUpdateBroadcast(userUUID, broadcastMapper.dtoToEntity(broadcastDto), broadcastDto.status(), broadcastDto.threatId());
+    public BroadcastDto updateBroadcast(UUID userId, BroadcastDto broadcastDto) {
+        return saveOrUpdateBroadcast(userId, broadcastMapper.dtoToEntity(broadcastDto), broadcastDto.status(), broadcastDto.threatId());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public BroadcastDto saveOrUpdateBroadcast(UUID userUUID, Broadcast broadcast, BroadcastStatus status, long threatId) {
-        if (userService.canBroadcast(userUUID)) {
-            final ThreatEvent threatEvent = threatService.getThreatById(threatId)
+    public BroadcastDto saveOrUpdateBroadcast(UUID userId, Broadcast broadcast, BroadcastStatus status, UUID threatId) {
+        if (userService.canBroadcast(userId)) {
+            final ThreatEvent threatEvent = threatService.getThreatEntityById(threatId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Threat not found"));
             broadcast.setThreatEvent(threatEvent);
             broadcast.setStatus(status);
             if (status.equals(BroadcastStatus.PUBLISHED)) {
                 broadcast.setInitiated(LocalDateTime.now());
             }
-            broadcast.getAffectedCounties().forEach(county -> {
-                county.setBroadcast(broadcast);
-            });
+            broadcast.getAffectedCounties().forEach(county -> county.setBroadcast(broadcast));
             return this.broadcastMapper.entityToDto(broadcastRepository.save(broadcast));
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Broadcast not allowed");
@@ -71,19 +70,20 @@ public class BroadcastService {
     }
 
     //TODO method should do only one thing, so publish process should be moved to a separate method
-    public BroadcastDto updateAndPublish(UUID broadcastUUID, UUID userUUID, BroadcastDto broadcastDto) {
-        // FIXME bringing unused broadcastUUID from controller to service, is it really not needed?
+    public BroadcastDto updateAndPublish(UUID broadcastId, UUID userId, BroadcastDto broadcastDto) {
+        // FIXME bringing unused broadcastId from controller to service, is it really not needed?
 
-        final BroadcastDto savedBroadcast = updateBroadcast(userUUID, broadcastDto);
+        final BroadcastDto savedBroadcast = updateBroadcast(userId, broadcastDto);
         if (savedBroadcast.status().equals(BroadcastStatus.PUBLISHED)) {
-            final var threatById = threatService.getThreatById(broadcastDto.threatId()).get(); // FIXME what if threat is not found?
+            final var threatById = threatService.getThreatEntityById(broadcastDto.threatId())
+                .orElseThrow(() -> new NotFoundException("Threat with id " + broadcastDto.threatId() + " not found"));
             List<Long> countryIds = threatById.getAffectedCountries().stream().map(CountryThreat::getCountryId).toList();
             List<Long> countyIds = threatById.getAffectedCountries().stream()
                     .flatMap(item -> item.getAffectedCounties().stream())
                     .map(CountyCountry::getCountyId)
                     .toList();
             final KafkaBroadcastDto kafkaBroadcastDto = new KafkaBroadcastDto(
-                    broadcastDto.broadcastUUID(),
+                    broadcastDto.broadcastId(),
                     broadcastDto.title(),
                     threatById.getPeriodStart(),
                     threatById.getPeriodEnd(),

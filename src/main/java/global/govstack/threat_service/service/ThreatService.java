@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -72,8 +73,12 @@ public class ThreatService {
         }
     }
 
-    public Optional<ThreatEvent> getThreatById(Long threatId) {
-        return threatEventRepository.findById(threatId);
+    public Optional<ThreatEvent> getThreatEntityById(UUID threatId) {
+        return threatEventRepository.findByThreatUUID(threatId);
+    }
+
+    public Optional<ThreatDto> getThreatById(UUID threatId) {
+        return getThreatEntityById(threatId).map(threatMapper::entityToDto);
     }
 
     public OverviewThreatDto getThreatCount(String country) {

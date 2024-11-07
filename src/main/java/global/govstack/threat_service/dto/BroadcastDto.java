@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record BroadcastDto(
-    UUID broadcastUUID,
-    Long threatId,
+    UUID broadcastId,
+    UUID threatId,
     String title,
     BroadcastStatus status,
     String notes,

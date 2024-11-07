@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Builder
 public record KafkaBroadcastDto(
-    UUID broadcastUUID,
+    UUID broadcastId,
     String broadcastTitle,
     LocalDateTime startDate,
     LocalDateTime endDate,
