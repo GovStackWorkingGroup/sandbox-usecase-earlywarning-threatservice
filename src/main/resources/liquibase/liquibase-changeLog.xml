@@ -7,4 +7,5 @@
 
     <include file="liquibase/init_migration.sql"/>
     <include file="liquibase/insert-dummy-threats.sql"/>
+    <include file="liquibase/insert-dummy-broadcasts.sql"/>
 </databaseChangeLog>
