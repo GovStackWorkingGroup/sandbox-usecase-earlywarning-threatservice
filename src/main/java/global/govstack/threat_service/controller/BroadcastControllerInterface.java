@@ -28,7 +28,6 @@ public interface BroadcastControllerInterface {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     BroadcastDto updateBroadcast(
-            @RequestParam long id,
             @RequestParam UUID userUUID,
             @RequestBody BroadcastDto broadcastDto);
 }

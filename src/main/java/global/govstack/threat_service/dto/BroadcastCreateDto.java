@@ -5,6 +5,6 @@ public record BroadcastCreateDto(
         Long threatId,
         String title,
         String notes,
-        String englishMsg,
-        String swahiliMsg) {
+        String primaryLangMessage,
+        String secondaryLangMessage) {
 }

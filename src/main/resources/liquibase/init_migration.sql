@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS "broadcast"
     title    VARCHAR(255) NOT NULL,
     status   VARCHAR(255) NOT NULL,
     notes VARCHAR(255),
-    englishMsg TEXT,
-    swahiliMsg TEXT,
+    primaryLangMessage TEXT,
+    secondaryLangMessage TEXT,
     createdAt TIMESTAMP NOT NULL DEFAULT NOW(),
     initiated TIMESTAMP,
     FOREIGN KEY (threat_id) REFERENCES threat(id)

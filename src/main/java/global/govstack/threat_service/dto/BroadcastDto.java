@@ -1,6 +1,6 @@
 package global.govstack.threat_service.dto;
 
-import global.govstack.threat_service.repository.entity.EventStatus;
+import global.govstack.threat_service.repository.entity.BroadcastStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -10,10 +10,10 @@ public record BroadcastDto(
         UUID broadcastUUID,
         Long threatId,
         String title,
-        EventStatus status,
+        BroadcastStatus status,
         String notes,
-        String englishMsg,
-        String swahiliMsg,
+        String primaryLangMessage,
+        String secondaryLangMessage,
         LocalDateTime createdAt,
         LocalDateTime initiated
 ) {

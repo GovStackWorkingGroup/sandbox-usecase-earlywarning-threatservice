@@ -1,5 +1,5 @@
 package global.govstack.threat_service.repository.entity;
 
-public enum EventStatus {
+public enum BroadcastStatus {
   DRAFT, PUBLISHED
 }

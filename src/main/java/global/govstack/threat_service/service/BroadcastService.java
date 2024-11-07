@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static global.govstack.threat_service.repository.entity.EventStatus.DRAFT;
-import static global.govstack.threat_service.repository.entity.EventStatus.PUBLISHED;
 
 @Slf4j
 @Service
@@ -53,7 +51,7 @@ public class BroadcastService {
     }
 
     public BroadcastDto saveBroadcast(UUID userUUID, BroadcastCreateDto broadcastDto) {
-        return saveOrUpdateBroadcast(userUUID, this.broadcastMapper.createDtoToEntity(broadcastDto), DRAFT, broadcastDto.threatId());
+        return saveOrUpdateBroadcast(userUUID, this.broadcastMapper.createDtoToEntity(broadcastDto), BroadcastStatus.DRAFT, broadcastDto.threatId());
     }
 
     public BroadcastDto updateBroadcast(UUID userUUID, BroadcastDto broadcastDto) {
@@ -61,43 +59,39 @@ public class BroadcastService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    protected BroadcastDto saveOrUpdateBroadcast(UUID userUUID, Broadcast broadcast, EventStatus status, long threatId) {
-        isAdminHasPermission(userUUID);
-        final ThreatEvent threatEvent = threatService.getThreatById(threatId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Threat not found"));
-        broadcast.setThreatEvent(threatEvent);
-        broadcast.setStatus(status);
-        if (status.equals(PUBLISHED)) {
-            broadcast.setInitiated(LocalDateTime.now());
-        }
-        final Broadcast savedBroadcast = broadcastRepository.save(broadcast);
-        return this.broadcastMapper.entityToDto(savedBroadcast);
-    }
-
-    private void isAdminHasPermission(UUID userUUID) {
-        boolean canBroadcast = userService.canBroadcast(userUUID);
-        if (!canBroadcast) {
-            log.error("Broadcast is forbidden");
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Broadcast is forbidden");
+    public BroadcastDto saveOrUpdateBroadcast(UUID userUUID, Broadcast broadcast, BroadcastStatus status, long threatId) {
+        if (this.userService.canBroadcast(userUUID)) {
+            final ThreatEvent threatEvent = threatService.getThreatById(threatId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Threat not found"));
+            broadcast.setThreatEvent(threatEvent);
+            broadcast.setStatus(status);
+            if (status.equals(BroadcastStatus.PUBLISHED)) {
+                broadcast.setInitiated(LocalDateTime.now());
+            }
+            final Broadcast savedBroadcast = broadcastRepository.save(broadcast);
+            return this.broadcastMapper.entityToDto(savedBroadcast);
+        } else {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Broadcast not allowed");
         }
     }
 
-    public BroadcastDto saveAndPublish(UUID userUUID, BroadcastDto broadcastDto) {
-        BroadcastDto savedBroadcast = updateBroadcast(userUUID, broadcastDto);
-        if (savedBroadcast.status().equals(PUBLISHED)) {
+    //TODO method should do only one thing, so publish process should be moved to a separate method
+    public BroadcastDto updateAndPublish(UUID userUUID, BroadcastDto broadcastDto) {
+        final BroadcastDto savedBroadcast = this.updateBroadcast(userUUID, broadcastDto);
+        if (savedBroadcast.status().equals(BroadcastStatus.PUBLISHED)) {
             final var threatById = threatService.getThreatById(broadcastDto.threatId()).get();
             List<Long> countryIds = threatById.getAffectedCountries().stream().map(CountryThreat::getCountryId).toList();
             List<Long> countyIds = threatById.getAffectedCountries().stream()
                     .flatMap(item -> item.getAffectedCounties().stream())
                     .map(CountyCountry::getCountyId)
                     .toList();
-            var kafkaBroadcastDto = new KafkaBroadcastDto(
+            final KafkaBroadcastDto kafkaBroadcastDto = new KafkaBroadcastDto(
                     broadcastDto.broadcastUUID(),
                     broadcastDto.title(),
                     threatById.getPeriodStart(),
                     threatById.getPeriodEnd(),
-                    broadcastDto.englishMsg(),
-                    broadcastDto.swahiliMsg(),
+                    broadcastDto.primaryLangMessage(),
+                    broadcastDto.secondaryLangMessage(),
                     countryIds,
                     countyIds
             );
