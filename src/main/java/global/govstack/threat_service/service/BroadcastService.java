@@ -49,7 +49,7 @@ public class BroadcastService {
     }
 
     public BroadcastDto updateBroadcast(BroadcastDto broadcastDto) {
-        return saveOrUpdateBroadcast( broadcastMapper.dtoToEntity(broadcastDto), broadcastDto.status(), broadcastDto.threatId());
+        return saveOrUpdateBroadcast(broadcastMapper.dtoToEntity(broadcastDto), broadcastDto.status(), broadcastDto.threatId());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -64,7 +64,8 @@ public class BroadcastService {
         broadcast.getAffectedCounties().forEach(county -> county.setBroadcast(broadcast));
         return this.broadcastMapper.entityToDto(broadcastRepository.save(broadcast));
     }
-//TODO publish should be separated funtionality
+
+    //TODO publish should be separated funtionality
     public BroadcastDto updateAndPublish(BroadcastDto broadcastDto) {
         // TODO EVERYONE use broadcastId from controller instead from the DTO
         final BroadcastDto savedBroadcast = updateBroadcast(broadcastDto);
