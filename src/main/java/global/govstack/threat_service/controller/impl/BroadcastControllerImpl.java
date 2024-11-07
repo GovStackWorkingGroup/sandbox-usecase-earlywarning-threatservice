@@ -26,18 +26,18 @@ public class BroadcastControllerImpl implements BroadcastControllerInterface {
     }
 
     @Override
-    public BroadcastDto getBroadcastDetails(UUID broadcastUUID) {
-        return broadcastService.getBroadcastByUuid(broadcastUUID)
-            .orElseThrow(() -> new NotFoundException("Broadcast with UUID " + broadcastUUID + " not found"));
+    public BroadcastDto getBroadcastDetails(UUID broadcastId) {
+        return broadcastService.getBroadcastById(broadcastId)
+            .orElseThrow(() -> new NotFoundException("Broadcast with ID " + broadcastId + " not found"));
     }
 
     @Override
-    public BroadcastDto saveBroadcast(UUID userUUID, BroadcastCreateDto broadcastDto) {
-       return broadcastService.saveBroadcast(userUUID, broadcastDto);
+    public BroadcastDto saveBroadcast(UUID userId, BroadcastCreateDto broadcastDto) {
+       return broadcastService.saveBroadcast(userId, broadcastDto);
     }
 
     @Override
-    public BroadcastDto updateBroadcast(UUID broadcastUUID, UUID userUUID, BroadcastDto broadcastDto) {
-       return broadcastService.updateAndPublish(userUUID, broadcastDto);
+    public BroadcastDto updateBroadcast(UUID broadcastId, UUID userId, BroadcastDto broadcastDto) {
+       return broadcastService.updateAndPublish(broadcastId, userId, broadcastDto);
     }
 }

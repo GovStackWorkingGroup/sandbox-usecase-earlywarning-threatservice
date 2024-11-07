@@ -35,9 +35,9 @@ public class UserService {
         this.httpHeaders.setContentType(MediaType.APPLICATION_JSON);
     }
 
-    public boolean canBroadcast(UUID userUUID) {
+    public boolean canBroadcast(UUID userId) {
         log.info("check if the administrator has broadcasting rights");
-        return (boolean) this.restRequest("/api/v1/user/canBroadcast?" + userUUID.toString(), HttpMethod.GET, boolean.class);
+        return (boolean) this.restRequest("/api/v1/user/canBroadcast?" + userId.toString(), HttpMethod.GET, boolean.class);
     }
 
     public List<CountryDto> getAllCountries() {

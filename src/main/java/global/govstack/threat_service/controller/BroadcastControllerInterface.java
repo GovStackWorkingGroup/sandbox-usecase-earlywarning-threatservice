@@ -17,17 +17,17 @@ public interface BroadcastControllerInterface {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    BroadcastDto saveBroadcast(@RequestParam UUID userUUID, @RequestBody BroadcastCreateDto broadcastDto);
+    BroadcastDto saveBroadcast(@RequestParam UUID userId, @RequestBody BroadcastCreateDto broadcastDto);
 
-    @GetMapping("/{broadcastUUID}")
-    BroadcastDto getBroadcastDetails(@PathVariable("broadcastUUID") UUID broadcastUUID);
+    @GetMapping("/{broadcastId}")
+    BroadcastDto getBroadcastDetails(@PathVariable("broadcastId") UUID broadcastId);
 
-    @PutMapping(path = "/{broadcastUUID}")
+    @PutMapping(path = "/{broadcastId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     BroadcastDto updateBroadcast(
-        @PathVariable("broadcastUUID") UUID broadcastUUID,
-        @RequestParam UUID userUUID,
+        @PathVariable("broadcastId") UUID broadcastId,
+        @RequestParam UUID userId,
         @RequestBody BroadcastDto broadcastDto
     );
 }
