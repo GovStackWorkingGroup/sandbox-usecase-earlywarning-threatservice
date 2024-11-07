@@ -17,7 +17,7 @@ public interface BroadcastControllerInterface {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    BroadcastDto saveBroadcast(@RequestParam UUID userId, @RequestBody BroadcastCreateDto broadcastDto);
+    BroadcastDto saveBroadcast(@RequestBody BroadcastCreateDto broadcastDto);
 
     @GetMapping("/{broadcastId}")
     BroadcastDto getBroadcastDetails(@PathVariable("broadcastId") UUID broadcastId);
