@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @Data
@@ -23,12 +21,12 @@ public class Broadcast {
   private ThreatEvent threatEvent;
   private String title;
   @Enumerated(EnumType.STRING)
-  private EventStatus status;
+  private BroadcastStatus status;
   private String notes;
   @Column(columnDefinition = "TEXT")
-  private String englishMsg;
+  private String primaryLangMessage;
   @Column(columnDefinition = "TEXT")
-  private String swahiliMsg;
+  private String secondaryLangMessage;
   private LocalDateTime createdAt;
   private LocalDateTime initiated;
 
