@@ -7,6 +7,7 @@ import global.govstack.threat_service.mapper.BroadcastMapper;
 import global.govstack.threat_service.pub_sub.IMPublisher;
 import global.govstack.threat_service.repository.BroadcastRepository;
 import global.govstack.threat_service.repository.entity.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class BroadcastService {
 
     private final BroadcastRepository broadcastRepository;
@@ -33,34 +35,25 @@ public class BroadcastService {
     private final IMPublisher imPublisher;
     private final ThreatService threatService;
 
-    public BroadcastService(
-            BroadcastRepository broadcastRepository, BroadcastMapper broadcastMapper, UserService userService, IMPublisher imPublisher, ThreatService threatService) {
-        this.broadcastRepository = broadcastRepository;
-        this.broadcastMapper = broadcastMapper;
-        this.userService = userService;
-        this.imPublisher = imPublisher;
-        this.threatService = threatService;
-    }
-
     public Page<BroadcastDto> getAllBroadcasts(Pageable pageable) {
-        return this.broadcastRepository.findAll(pageable).map(this.broadcastMapper::entityToDto);
+        return broadcastRepository.findAll(pageable).map(broadcastMapper::entityToDto);
     }
 
-    public Optional<BroadcastDto> getBroadcastById(UUID broadcastUUID) {
-        return this.broadcastRepository.findBroadcastByBroadcastUUID(broadcastUUID).map(this.broadcastMapper::entityToDto);
+    public Optional<BroadcastDto> getBroadcastByUuid(UUID broadcastUUID) {
+        return broadcastRepository.findBroadcastByBroadcastUUID(broadcastUUID).map(broadcastMapper::entityToDto);
     }
 
     public BroadcastDto saveBroadcast(UUID userUUID, BroadcastCreateDto broadcastDto) {
-        return saveOrUpdateBroadcast(userUUID, this.broadcastMapper.createDtoToEntity(broadcastDto), BroadcastStatus.DRAFT, broadcastDto.threatId());
+        return saveOrUpdateBroadcast(userUUID, broadcastMapper.createDtoToEntity(broadcastDto), BroadcastStatus.DRAFT, broadcastDto.threatId());
     }
 
     public BroadcastDto updateBroadcast(UUID userUUID, BroadcastDto broadcastDto) {
-        return saveOrUpdateBroadcast(userUUID, this.broadcastMapper.dtoToEntity(broadcastDto), broadcastDto.status(), broadcastDto.threatId());
+        return saveOrUpdateBroadcast(userUUID, broadcastMapper.dtoToEntity(broadcastDto), broadcastDto.status(), broadcastDto.threatId());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public BroadcastDto saveOrUpdateBroadcast(UUID userUUID, Broadcast broadcast, BroadcastStatus status, long threatId) {
-        if (this.userService.canBroadcast(userUUID)) {
+        if (userService.canBroadcast(userUUID)) {
             final ThreatEvent threatEvent = threatService.getThreatById(threatId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Threat not found"));
             broadcast.setThreatEvent(threatEvent);
@@ -69,17 +62,19 @@ public class BroadcastService {
                 broadcast.setInitiated(LocalDateTime.now());
             }
             final Broadcast savedBroadcast = broadcastRepository.save(broadcast);
-            return this.broadcastMapper.entityToDto(savedBroadcast);
+            return broadcastMapper.entityToDto(savedBroadcast);
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Broadcast not allowed");
         }
     }
 
     //TODO method should do only one thing, so publish process should be moved to a separate method
-    public BroadcastDto updateAndPublish(UUID userUUID, BroadcastDto broadcastDto) {
-        final BroadcastDto savedBroadcast = this.updateBroadcast(userUUID, broadcastDto);
+    public BroadcastDto updateAndPublish(UUID broadcastUUID, UUID userUUID, BroadcastDto broadcastDto) {
+        // FIXME bringing unused broadcastUUID from controller to service, is it really not needed?
+
+        final BroadcastDto savedBroadcast = updateBroadcast(userUUID, broadcastDto);
         if (savedBroadcast.status().equals(BroadcastStatus.PUBLISHED)) {
-            final var threatById = threatService.getThreatById(broadcastDto.threatId()).get();
+            final var threatById = threatService.getThreatById(broadcastDto.threatId()).get(); // FIXME what if threat is not found?
             List<Long> countryIds = threatById.getAffectedCountries().stream().map(CountryThreat::getCountryId).toList();
             List<Long> countyIds = threatById.getAffectedCountries().stream()
                     .flatMap(item -> item.getAffectedCounties().stream())
@@ -95,7 +90,7 @@ public class BroadcastService {
                     countryIds,
                     countyIds
             );
-            this.imPublisher.publishBroadcast(kafkaBroadcastDto);
+            imPublisher.publishBroadcast(kafkaBroadcastDto);
         }
         return savedBroadcast;
     }

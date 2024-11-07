@@ -2,6 +2,7 @@ package global.govstack.threat_service.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import global.govstack.threat_service.controller.exception.InternalServerException;
 import global.govstack.threat_service.dto.KafkaThreatDto;
 import global.govstack.threat_service.dto.ThreatDto;
 import global.govstack.threat_service.dto.overview.OverviewThreatDto;
@@ -14,6 +15,7 @@ import global.govstack.threat_service.repository.entity.CountyCountry;
 import global.govstack.threat_service.repository.entity.ThreatEvent;
 import global.govstack.threat_service.repository.entity.ThreatSeverity;
 import global.govstack.threat_service.service.location.CountryDto;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,7 @@ import java.util.Optional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ThreatService {
 
     private final ThreatEventRepository threatEventRepository;
@@ -33,20 +36,11 @@ public class ThreatService {
     private final CountyCountryRepository countyCountryRepository;
     private final UserService userService;
 
-    public ThreatService(ObjectMapper mapper, ThreatEventRepository threatEventRepository, ThreatMapper threatMapper, CountryThreatRepository countryThreatRepository, CountyCountryRepository countyCountryRepository, UserService userService) {
-        this.mapper = mapper;
-        this.threatEventRepository = threatEventRepository;
-        this.threatMapper = threatMapper;
-        this.countryThreatRepository = countryThreatRepository;
-        this.countyCountryRepository = countyCountryRepository;
-        this.userService = userService;
-    }
-
     public void handleIncomingThreatFromIM(String threatMessage) {
-        final KafkaThreatDto kafkaThreatDto = this.mapIncomingMessage(threatMessage);
+        final KafkaThreatDto kafkaThreatDto = mapIncomingMessage(threatMessage);
         final List<CountryDto> allCountries = userService.getAllCountries();
-        final ThreatEvent threatEvent = this.threatMapper.dtoToEntity(kafkaThreatDto);
-        final ThreatEvent savedThreat = this.threatEventRepository.save(threatEvent);
+        final ThreatEvent threatEvent = threatMapper.dtoToEntity(kafkaThreatDto);
+        final ThreatEvent savedThreat = threatEventRepository.save(threatEvent);
         kafkaThreatDto.affectedCountries().forEach(country -> {
             CountryDto countryDto = allCountries.stream().filter(c -> c.name().equals(country)).findFirst().orElseThrow();
             CountryThreat countryThreat = new CountryThreat();
@@ -64,27 +58,26 @@ public class ThreatService {
         });
     }
 
-
-    public Page<ThreatDto> getAllThreats(String country, Pageable page) {
-        final Page<ThreatEvent> allThreatsByCountry = this.threatEventRepository.getAllThreatsByCountry(country, page);
-        return allThreatsByCountry.map(this.threatMapper::entityToDto);
+    public Page<ThreatDto> getAllThreats(String country, boolean active, Pageable page) {
+        final Page<ThreatEvent> allThreatsByCountry = threatEventRepository.getAllThreats(country, active, page);
+        return allThreatsByCountry.map(threatMapper::entityToDto);
     }
 
     private KafkaThreatDto mapIncomingMessage(String threatMessage) {
         log.info("Mapping incoming threat object");
         try {
-            return this.mapper.readValue(threatMessage, KafkaThreatDto.class);
+            return mapper.readValue(threatMessage, KafkaThreatDto.class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Mapping incoming message failed" + e);
+            throw new InternalServerException("Mapping incoming message failed" + e);
         }
     }
 
     public Optional<ThreatEvent> getThreatById(Long threatId) {
-        return this.threatEventRepository.findById(threatId);
+        return threatEventRepository.findById(threatId);
     }
 
     public OverviewThreatDto getThreatCount(String country) {
-        final List<ThreatEvent> threatEvents = this.threatEventRepository.countActiveThreats(country);
+        final List<ThreatEvent> threatEvents = threatEventRepository.countActiveThreats(country);
         return OverviewThreatDto.builder()
                 .activeThreatsCount(threatEvents.size()) //active means start that endDate is > NOW()
                 .highPriorityCount((int) threatEvents.stream().filter(t -> t.getSeverity().equals(ThreatSeverity.HIGH)).count())

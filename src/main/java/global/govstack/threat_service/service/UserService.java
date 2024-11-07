@@ -2,8 +2,11 @@ package global.govstack.threat_service.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import global.govstack.threat_service.api.APIUtil;
+import global.govstack.threat_service.util.APIUtil;
+import global.govstack.threat_service.controller.exception.InternalServerException;
 import global.govstack.threat_service.service.location.CountryDto;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -17,20 +20,19 @@ import java.util.UUID;
 @Slf4j
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UserService {
 
     @Value("${user-service.url}")
-    private String USER_SERVICE_URL;
+    private static final String USER_SERVICE_URL = "";
+
     private final APIUtil apiUtil;
-    private final ObjectMapper mapper;
-    private final HttpHeaders httpHeaders;
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final HttpHeaders httpHeaders = new HttpHeaders();
 
-
-    public UserService(APIUtil apiUtil) {
-        this.apiUtil = apiUtil;
-        mapper = new ObjectMapper();
-        httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+    @PostConstruct
+    private void init() {
+        this.httpHeaders.setContentType(MediaType.APPLICATION_JSON);
     }
 
     public boolean canBroadcast(UUID userUUID) {
@@ -58,7 +60,7 @@ public class UserService {
         try {
             return this.mapper.readValue(countries, mapper.getTypeFactory().constructCollectionType(List.class, CountryDto.class));
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Mapping incoming message failed: " + e);
+            throw new InternalServerException("Mapping incoming message failed: " + e);
         }
     }
 }

@@ -1,8 +1,8 @@
 package global.govstack.threat_service.dto;
 
 import java.util.List;
-import lombok.Data;
 
+import lombok.Data;
 
 @Data
 public class IncomingThreatDto {
