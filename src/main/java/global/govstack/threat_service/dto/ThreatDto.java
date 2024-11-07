@@ -13,6 +13,7 @@ public record ThreatDto(
     List<MinimalCountryDto> affectedCountries,
     String range,
     String periodStart,
-    String periodEnd
+    String periodEnd,
+    boolean active
 ) {
 }
