@@ -61,8 +61,10 @@ public class BroadcastService {
             if (status.equals(BroadcastStatus.PUBLISHED)) {
                 broadcast.setInitiated(LocalDateTime.now());
             }
-            final Broadcast savedBroadcast = broadcastRepository.save(broadcast);
-            return broadcastMapper.entityToDto(savedBroadcast);
+            broadcast.getAffectedCounties().forEach(county -> {
+                county.setBroadcast(broadcast);
+            });
+            return this.broadcastMapper.entityToDto(broadcastRepository.save(broadcast));
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Broadcast not allowed");
         }
