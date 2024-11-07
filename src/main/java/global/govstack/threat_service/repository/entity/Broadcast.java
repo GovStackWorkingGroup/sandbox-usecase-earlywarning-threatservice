@@ -42,6 +42,6 @@ public class Broadcast {
 
     @PrePersist
     protected void onCreate() {
-        this.broadcastUUID = UUID.randomUUID();
+        broadcastUUID = UUID.randomUUID();
     }
 }

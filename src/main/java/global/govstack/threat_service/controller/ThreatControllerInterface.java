@@ -6,10 +6,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 public interface ThreatControllerInterface {
 
-    @GetMapping(path = "/getAllThreatsForCountry")
-    Page<ThreatDto> getAllThreatsForCountry(@RequestParam String country, Pageable pageable);
+    @GetMapping()
+    Page<ThreatDto> getAllThreats(
+        @RequestParam(required = false) String country,
+        @RequestParam(required = false, defaultValue = "false") boolean active,
+        Pageable pageable
+    );
 
 }
