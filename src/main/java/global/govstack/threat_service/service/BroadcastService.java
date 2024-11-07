@@ -44,34 +44,30 @@ public class BroadcastService {
         return broadcastRepository.findBroadcastByBroadcastUUID(broadcastId).map(broadcastMapper::entityToDto);
     }
 
-    public BroadcastDto saveBroadcast(UUID userId, BroadcastCreateDto broadcastDto) {
-        return saveOrUpdateBroadcast(userId, broadcastMapper.createDtoToEntity(broadcastDto), BroadcastStatus.DRAFT, broadcastDto.threatId());
+    public BroadcastDto saveBroadcast(BroadcastCreateDto broadcastDto) {
+        return saveOrUpdateBroadcast(broadcastMapper.createDtoToEntity(broadcastDto), BroadcastStatus.DRAFT, broadcastDto.threatId());
     }
 
-    public BroadcastDto updateBroadcast(UUID userId, BroadcastDto broadcastDto) {
-        return saveOrUpdateBroadcast(userId, broadcastMapper.dtoToEntity(broadcastDto), broadcastDto.status(), broadcastDto.threatId());
+    public BroadcastDto updateBroadcast(BroadcastDto broadcastDto) {
+        return saveOrUpdateBroadcast( broadcastMapper.dtoToEntity(broadcastDto), broadcastDto.status(), broadcastDto.threatId());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public BroadcastDto saveOrUpdateBroadcast(UUID userId, Broadcast broadcast, BroadcastStatus status, UUID threatId) {
-        if (userService.canBroadcast(userId)) {
-            final ThreatEvent threatEvent = threatService.getThreatEntityById(threatId)
-                    .orElseThrow(() -> new NotFoundException("Threat with id " + broadcastDto.threatId() + " not found"));
-            broadcast.setThreatEvent(threatEvent);
-            broadcast.setStatus(status);
-            if (status.equals(BroadcastStatus.PUBLISHED)) {
-                broadcast.setInitiated(LocalDateTime.now());
-            }
-            broadcast.getAffectedCounties().forEach(county -> county.setBroadcast(broadcast));
-            return this.broadcastMapper.entityToDto(broadcastRepository.save(broadcast));
-        } else {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Broadcast not allowed");
+    public BroadcastDto saveOrUpdateBroadcast(Broadcast broadcast, BroadcastStatus status, UUID threatId) {
+        final ThreatEvent threatEvent = threatService.getThreatEntityById(threatId)
+                .orElseThrow(() -> new NotFoundException("Threat with id " + threatId + " not found"));
+        broadcast.setThreatEvent(threatEvent);
+        broadcast.setStatus(status);
+        if (status.equals(BroadcastStatus.PUBLISHED)) {
+            broadcast.setInitiated(LocalDateTime.now());
         }
+        broadcast.getAffectedCounties().forEach(county -> county.setBroadcast(broadcast));
+        return this.broadcastMapper.entityToDto(broadcastRepository.save(broadcast));
     }
-
-    public BroadcastDto updateAndPublish(UUID userId, BroadcastDto broadcastDto) {
-        // FIXME bringing unused broadcastUUID from controller to service, is it really not needed?
-        final BroadcastDto savedBroadcast = updateBroadcast(userId, broadcastDto);
+//TODO publish should be separated funtionality
+    public BroadcastDto updateAndPublish(BroadcastDto broadcastDto) {
+        // TODO EVERYONE use broadcastId from controller instead from the DTO
+        final BroadcastDto savedBroadcast = updateBroadcast(broadcastDto);
         if (savedBroadcast.status().equals(BroadcastStatus.PUBLISHED)) {
             mapAndPublish(broadcastDto);
         }
@@ -80,7 +76,7 @@ public class BroadcastService {
 
     private void mapAndPublish(BroadcastDto broadcastDto) {
         final KafkaBroadcastDto kafkaBroadcastDto = new KafkaBroadcastDto(
-                broadcastDto.broadcastUUID(),
+                broadcastDto.broadcastId(),
                 broadcastDto.title(),
                 broadcastDto.periodStart(),
                 broadcastDto.periodEnd(),
