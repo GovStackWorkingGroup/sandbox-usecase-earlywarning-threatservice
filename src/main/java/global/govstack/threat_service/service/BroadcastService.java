@@ -5,6 +5,7 @@ import global.govstack.threat_service.dto.BroadcastDto;
 import global.govstack.threat_service.dto.KafkaBroadcastDto;
 import global.govstack.threat_service.mapper.BroadcastMapper;
 import global.govstack.threat_service.pub_sub.IMPublisher;
+import global.govstack.threat_service.repository.BroadcastCountyRepository;
 import global.govstack.threat_service.repository.BroadcastRepository;
 import global.govstack.threat_service.repository.entity.*;
 import lombok.extern.slf4j.Slf4j;
@@ -32,14 +33,16 @@ public class BroadcastService {
     private final UserService userService;
     private final IMPublisher imPublisher;
     private final ThreatService threatService;
+    private final BroadcastCountyRepository broadcastCountyRepository;
 
     public BroadcastService(
-            BroadcastRepository broadcastRepository, BroadcastMapper broadcastMapper, UserService userService, IMPublisher imPublisher, ThreatService threatService) {
+            BroadcastRepository broadcastRepository, BroadcastMapper broadcastMapper, UserService userService, IMPublisher imPublisher, ThreatService threatService, BroadcastCountyRepository broadcastCountyRepository) {
         this.broadcastRepository = broadcastRepository;
         this.broadcastMapper = broadcastMapper;
         this.userService = userService;
         this.imPublisher = imPublisher;
         this.threatService = threatService;
+        this.broadcastCountyRepository = broadcastCountyRepository;
     }
 
     public Page<BroadcastDto> getAllBroadcasts(Pageable pageable) {
@@ -68,8 +71,10 @@ public class BroadcastService {
             if (status.equals(BroadcastStatus.PUBLISHED)) {
                 broadcast.setInitiated(LocalDateTime.now());
             }
-            final Broadcast savedBroadcast = broadcastRepository.save(broadcast);
-            return this.broadcastMapper.entityToDto(savedBroadcast);
+            broadcast.getAffectedCounties().forEach(county -> {
+                county.setBroadcast(broadcast);
+            });
+            return this.broadcastMapper.entityToDto(broadcastRepository.save(broadcast));
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Broadcast not allowed");
         }

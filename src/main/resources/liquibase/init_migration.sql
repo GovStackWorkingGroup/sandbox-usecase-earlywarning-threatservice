@@ -34,8 +34,12 @@ CREATE TABLE IF NOT EXISTS "broadcast"
     title    VARCHAR(255) NOT NULL,
     status   VARCHAR(255) NOT NULL,
     notes VARCHAR(255),
+    countryId BIGINT NOT NULL,
+    countryName VARCHAR(255) NOT NULL,
     primaryLangMessage TEXT,
     secondaryLangMessage TEXT,
+    periodStart TIMESTAMP NOT NULL,
+    periodEnd TIMESTAMP NOT NULL,
     createdAt TIMESTAMP NOT NULL DEFAULT NOW(),
     initiated TIMESTAMP,
     FOREIGN KEY (threat_id) REFERENCES threat(id)
@@ -71,4 +75,19 @@ CREATE TABLE IF NOT EXISTS "county_country" (
     countyId BIGINT NOT NULL,
     countyName  VARCHAR(255) NOT NULL,
     FOREIGN KEY (country_threat_id) REFERENCES country_threat(id)
+    );
+
+CREATE SEQUENCE IF NOT EXISTS broadcast_county_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE IF NOT EXISTS "broadcast_county" (
+    id BIGINT NOT NULL DEFAULT nextval('broadcast_county_seq') PRIMARY KEY,
+    broadcast_id BIGINT NOT NULL,
+    countyId BIGINT NOT NULL,
+    countyName  VARCHAR(255) NOT NULL,
+    FOREIGN KEY (broadcast_id) REFERENCES broadcast(id)
     );
