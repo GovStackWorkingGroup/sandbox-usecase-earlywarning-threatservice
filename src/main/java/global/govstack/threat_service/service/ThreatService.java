@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import global.govstack.threat_service.dto.KafkaThreatDto;
 import global.govstack.threat_service.dto.ThreatDto;
+import global.govstack.threat_service.dto.overview.OverviewThreatDto;
 import global.govstack.threat_service.mapper.ThreatMapper;
 import global.govstack.threat_service.repository.CountryThreatRepository;
 import global.govstack.threat_service.repository.CountyCountryRepository;
@@ -11,6 +12,7 @@ import global.govstack.threat_service.repository.ThreatEventRepository;
 import global.govstack.threat_service.repository.entity.CountryThreat;
 import global.govstack.threat_service.repository.entity.CountyCountry;
 import global.govstack.threat_service.repository.entity.ThreatEvent;
+import global.govstack.threat_service.repository.entity.ThreatSeverity;
 import global.govstack.threat_service.service.location.CountryDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -79,5 +81,13 @@ public class ThreatService {
 
     public Optional<ThreatEvent> getThreatById(Long threatId) {
         return this.threatEventRepository.findById(threatId);
+    }
+
+    public OverviewThreatDto getThreatCount(String country) {
+        final List<ThreatEvent> threatEvents = this.threatEventRepository.countActiveThreats(country);
+        return OverviewThreatDto.builder()
+                .activeThreatsCount(threatEvents.size()) //active means start that endDate is > NOW()
+                .highPriorityCount((int) threatEvents.stream().filter(t -> t.getSeverity().equals(ThreatSeverity.HIGH)).count())
+                .build();
     }
 }
