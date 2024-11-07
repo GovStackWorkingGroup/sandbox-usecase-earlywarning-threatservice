@@ -8,6 +8,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ThreatMapper {
+  @Mapping(source = "id", target = "threatNumber")
+  @Mapping(source = "threatUUID", target = "threatId")
   ThreatDto entityToDto(ThreatEvent threatEvent);
 
   @Mapping(target = "id", ignore = true)
