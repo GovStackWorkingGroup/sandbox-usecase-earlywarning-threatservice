@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface BroadcastRepository extends ListCrudRepository<Broadcast, Long> {
-    Optional<Broadcast> findBroadcastByBroadcastUUID(UUID broadcastUUID);
+    Optional<Broadcast> findBroadcastByBroadcastUUID(UUID broadcastId);
 
     Page<Broadcast> findAll(Pageable pageable);
 }

@@ -11,23 +11,23 @@ import java.util.UUID;
 
 public interface BroadcastControllerInterface {
 
-    @GetMapping(path = "/getAll")
+    @GetMapping()
     Page<BroadcastDto> getAllBroadcasts(Pageable pageable);
 
-    @GetMapping(path = "/getBroadcastDetails")
-    BroadcastDto getBroadcastDetails(@RequestParam UUID broadcastUUID);
-
-    @PostMapping(path = "/saveBroadcast")
+    @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    BroadcastDto saveBroadcast(
-            @RequestParam UUID userUUID,
-            @RequestBody BroadcastCreateDto broadcastDto);
+    BroadcastDto saveBroadcast(@RequestBody BroadcastCreateDto broadcastDto);
 
-    @PutMapping(path = "/updateBroadcast")
+    @GetMapping("/{broadcastId}")
+    BroadcastDto getBroadcastDetails(@PathVariable("broadcastId") UUID broadcastId);
+
+    @PutMapping(path = "/{broadcastId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     BroadcastDto updateBroadcast(
-            @RequestParam UUID userUUID,
-            @RequestBody BroadcastDto broadcastDto);
+        @PathVariable("broadcastId") UUID broadcastId,
+        @RequestParam UUID userId,
+        @RequestBody BroadcastDto broadcastDto
+    );
 }
