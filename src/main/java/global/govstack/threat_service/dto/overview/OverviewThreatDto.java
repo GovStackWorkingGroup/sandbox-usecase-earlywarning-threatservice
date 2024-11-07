@@ -1,4 +1,4 @@
-package global.govstack.weather_event_service.dto.overview;
+package global.govstack.threat_service.dto.overview;
 
 import lombok.Builder;
 

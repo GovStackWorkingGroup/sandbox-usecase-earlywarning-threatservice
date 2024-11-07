@@ -1,6 +1,6 @@
-package global.govstack.weather_event_service.controller;
+package global.govstack.threat_service.controller;
 
-import global.govstack.weather_event_service.dto.overview.OverviewDto;
+import global.govstack.threat_service.dto.overview.OverviewDto;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 

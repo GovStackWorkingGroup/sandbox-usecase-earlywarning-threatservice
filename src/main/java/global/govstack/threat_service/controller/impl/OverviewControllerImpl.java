@@ -1,12 +1,12 @@
-package global.govstack.weather_event_service.controller.impl;
+package global.govstack.threat_service.controller.impl;
 
-import global.govstack.weather_event_service.controller.OverviewControllerInterface;
-import global.govstack.weather_event_service.dto.overview.OverviewBroadcastDto;
-import global.govstack.weather_event_service.dto.overview.OverviewDto;
-import global.govstack.weather_event_service.dto.overview.OverviewFeedbackDto;
-import global.govstack.weather_event_service.dto.overview.OverviewThreatDto;
-import global.govstack.weather_event_service.service.BroadcastService;
-import global.govstack.weather_event_service.service.ThreatService;
+import global.govstack.threat_service.controller.OverviewControllerInterface;
+import global.govstack.threat_service.dto.overview.OverviewBroadcastDto;
+import global.govstack.threat_service.dto.overview.OverviewDto;
+import global.govstack.threat_service.dto.overview.OverviewFeedbackDto;
+import global.govstack.threat_service.dto.overview.OverviewThreatDto;
+import global.govstack.threat_service.service.BroadcastService;
+import global.govstack.threat_service.service.ThreatService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
