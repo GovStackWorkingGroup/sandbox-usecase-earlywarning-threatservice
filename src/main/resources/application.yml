@@ -2,7 +2,7 @@ spring:
   application:
     name: threat-service
   datasource:
-    url: jdbc:postgresql://localhost:5433/threat-db
+    url: jdbc:postgresql://localhost:5432/threat-db
     username: user
     password: password
   jpa:
@@ -35,5 +35,3 @@ message:
 
 user-service:
   url: http://user-service:8080/api/v1/end-user
-
-server.port: 8081
