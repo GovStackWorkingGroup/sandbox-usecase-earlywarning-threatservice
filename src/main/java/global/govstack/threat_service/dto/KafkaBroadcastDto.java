@@ -14,7 +14,7 @@ public record KafkaBroadcastDto(
     LocalDateTime endDate,
     String textPrimaryLang,
     String textSecondaryLang,
-    List<Long> countryId,
+    Long countryId,
     List<Long> countyId
 ) {
 }

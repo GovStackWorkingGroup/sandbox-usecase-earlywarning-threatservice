@@ -2,6 +2,7 @@ package global.govstack.threat_service.service;
 
 import global.govstack.threat_service.dto.BroadcastCreateDto;
 import global.govstack.threat_service.dto.BroadcastDto;
+import global.govstack.threat_service.dto.CreateBroadcastCountyDto;
 import global.govstack.threat_service.dto.KafkaBroadcastDto;
 import global.govstack.threat_service.mapper.BroadcastMapper;
 import global.govstack.threat_service.pub_sub.IMPublisher;
@@ -18,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -70,30 +70,26 @@ public class BroadcastService {
         }
     }
 
-    //TODO method should do only one thing, so publish process should be moved to a separate method
-    public BroadcastDto updateAndPublish(UUID broadcastUUID, UUID userUUID, BroadcastDto broadcastDto) {
+    public BroadcastDto updateAndPublish(UUID userUUID, BroadcastDto broadcastDto) {
         // FIXME bringing unused broadcastUUID from controller to service, is it really not needed?
-
         final BroadcastDto savedBroadcast = updateBroadcast(userUUID, broadcastDto);
         if (savedBroadcast.status().equals(BroadcastStatus.PUBLISHED)) {
-            final var threatById = threatService.getThreatById(broadcastDto.threatId()).get(); // FIXME what if threat is not found?
-            List<Long> countryIds = threatById.getAffectedCountries().stream().map(CountryThreat::getCountryId).toList();
-            List<Long> countyIds = threatById.getAffectedCountries().stream()
-                    .flatMap(item -> item.getAffectedCounties().stream())
-                    .map(CountyCountry::getCountyId)
-                    .toList();
-            final KafkaBroadcastDto kafkaBroadcastDto = new KafkaBroadcastDto(
-                    broadcastDto.broadcastUUID(),
-                    broadcastDto.title(),
-                    threatById.getPeriodStart(),
-                    threatById.getPeriodEnd(),
-                    broadcastDto.primaryLangMessage(),
-                    broadcastDto.secondaryLangMessage(),
-                    countryIds,
-                    countyIds
-            );
-            imPublisher.publishBroadcast(kafkaBroadcastDto);
+            mapAndPublish(broadcastDto);
         }
         return savedBroadcast;
+    }
+
+    private void mapAndPublish(BroadcastDto broadcastDto) {
+        final KafkaBroadcastDto kafkaBroadcastDto = new KafkaBroadcastDto(
+                broadcastDto.broadcastUUID(),
+                broadcastDto.title(),
+                broadcastDto.periodStart(),
+                broadcastDto.periodEnd(),
+                broadcastDto.primaryLangMessage(),
+                broadcastDto.secondaryLangMessage(),
+                broadcastDto.countryId(),
+                broadcastDto.affectedCounties().stream().map(CreateBroadcastCountyDto::countyId).toList()
+        );
+        imPublisher.publishBroadcast(kafkaBroadcastDto);
     }
 }

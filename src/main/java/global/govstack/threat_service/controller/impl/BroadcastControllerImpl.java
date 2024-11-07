@@ -38,6 +38,6 @@ public class BroadcastControllerImpl implements BroadcastControllerInterface {
 
     @Override
     public BroadcastDto updateBroadcast(UUID broadcastUUID, UUID userUUID, BroadcastDto broadcastDto) {
-       return broadcastService.updateAndPublish(broadcastUUID, userUUID, broadcastDto);
+       return broadcastService.updateAndPublish(userUUID, broadcastDto);
     }
 }
