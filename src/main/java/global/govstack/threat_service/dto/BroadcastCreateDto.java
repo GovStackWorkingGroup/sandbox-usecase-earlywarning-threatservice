@@ -3,9 +3,10 @@ package global.govstack.threat_service.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public record BroadcastCreateDto(
-        Long threatId,
+        UUID threatId,
         String title,
         String notes,
         String primaryLangMessage,
