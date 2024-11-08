@@ -7,11 +7,13 @@ import java.util.UUID;
 
 public record ThreatDto(
     UUID threatId,
+    long threatNumber,
     String type,
     String severity,
     List<MinimalCountryDto> affectedCountries,
     String range,
     String periodStart,
-    String periodEnd
+    String periodEnd,
+    boolean active
 ) {
 }
