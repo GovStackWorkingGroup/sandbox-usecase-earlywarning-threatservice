@@ -1,4 +1,4 @@
-package global.govstack.threat_service.dto;
+package global.govstack.threat_service.dto.threat;
 
 import global.govstack.threat_service.service.location.MinimalCountryDto;
 

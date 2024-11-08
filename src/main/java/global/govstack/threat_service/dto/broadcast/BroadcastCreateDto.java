@@ -1,4 +1,4 @@
-package global.govstack.threat_service.dto;
+package global.govstack.threat_service.dto.broadcast;
 
 
 import java.time.LocalDateTime;
@@ -15,5 +15,6 @@ public record BroadcastCreateDto(
         String countryName,
         LocalDateTime periodStart,
         LocalDateTime periodEnd,
-        List<CreateBroadcastCountyDto>affectedCounties) {
+        UUID createdBy,
+        List<CreateBroadcastCountyDto> affectedCounties) {
 }

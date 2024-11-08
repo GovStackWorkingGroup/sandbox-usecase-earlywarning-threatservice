@@ -2,7 +2,7 @@ package global.govstack.threat_service.controller.impl;
 
 import global.govstack.threat_service.controller.ThreatControllerInterface;
 import global.govstack.threat_service.controller.exception.NotFoundException;
-import global.govstack.threat_service.dto.ThreatDto;
+import global.govstack.threat_service.dto.threat.ThreatDto;
 import global.govstack.threat_service.service.ThreatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

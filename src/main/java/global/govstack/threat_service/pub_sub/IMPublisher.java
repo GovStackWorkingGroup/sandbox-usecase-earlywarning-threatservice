@@ -2,7 +2,7 @@ package global.govstack.threat_service.pub_sub;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import global.govstack.threat_service.dto.KafkaBroadcastDto;
+import global.govstack.threat_service.dto.broadcast.KafkaBroadcastDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;

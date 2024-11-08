@@ -1,6 +1,6 @@
 package global.govstack.threat_service.controller;
 
-import global.govstack.threat_service.dto.ThreatDto;
+import global.govstack.threat_service.dto.threat.ThreatDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;

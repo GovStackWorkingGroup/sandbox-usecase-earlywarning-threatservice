@@ -1,10 +1,10 @@
 package global.govstack.threat_service.service;
 
 import global.govstack.threat_service.controller.exception.NotFoundException;
-import global.govstack.threat_service.dto.BroadcastCreateDto;
-import global.govstack.threat_service.dto.BroadcastDto;
-import global.govstack.threat_service.dto.CreateBroadcastCountyDto;
-import global.govstack.threat_service.dto.KafkaBroadcastDto;
+import global.govstack.threat_service.dto.broadcast.BroadcastCreateDto;
+import global.govstack.threat_service.dto.broadcast.BroadcastDto;
+import global.govstack.threat_service.dto.broadcast.CreateBroadcastCountyDto;
+import global.govstack.threat_service.dto.broadcast.KafkaBroadcastDto;
 import global.govstack.threat_service.mapper.BroadcastMapper;
 import global.govstack.threat_service.pub_sub.IMPublisher;
 import global.govstack.threat_service.repository.BroadcastRepository;
@@ -13,11 +13,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -32,12 +30,11 @@ public class BroadcastService {
 
     private final BroadcastRepository broadcastRepository;
     private final BroadcastMapper broadcastMapper;
-    private final UserService userService;
     private final IMPublisher imPublisher;
     private final ThreatService threatService;
 
-    public Page<BroadcastDto> getAllBroadcasts(Pageable pageable) {
-        return broadcastRepository.findAll(pageable).map(broadcastMapper::entityToDto);
+    public Page<BroadcastDto> getAllBroadcasts(String country, boolean active, UUID userUUID, Pageable pageable) {
+        return broadcastRepository.findAll(country, active, userUUID, pageable).map(broadcastMapper::entityToDto);
     }
 
     public Optional<BroadcastDto> getBroadcastById(UUID broadcastId) {
