@@ -1,12 +1,15 @@
 package global.govstack.threat_service.service;
 
+import global.govstack.threat_service.controller.exception.NotFoundException;
 import global.govstack.threat_service.dto.BroadcastCreateDto;
 import global.govstack.threat_service.dto.BroadcastDto;
+import global.govstack.threat_service.dto.CreateBroadcastCountyDto;
 import global.govstack.threat_service.dto.KafkaBroadcastDto;
 import global.govstack.threat_service.mapper.BroadcastMapper;
 import global.govstack.threat_service.pub_sub.IMPublisher;
 import global.govstack.threat_service.repository.BroadcastRepository;
 import global.govstack.threat_service.repository.entity.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,16 +20,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static global.govstack.threat_service.repository.entity.EventStatus.DRAFT;
-import static global.govstack.threat_service.repository.entity.EventStatus.PUBLISHED;
 
 @Slf4j
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class BroadcastService {
 
     private final BroadcastRepository broadcastRepository;
@@ -35,74 +36,56 @@ public class BroadcastService {
     private final IMPublisher imPublisher;
     private final ThreatService threatService;
 
-    public BroadcastService(
-            BroadcastRepository broadcastRepository, BroadcastMapper broadcastMapper, UserService userService, IMPublisher imPublisher, ThreatService threatService) {
-        this.broadcastRepository = broadcastRepository;
-        this.broadcastMapper = broadcastMapper;
-        this.userService = userService;
-        this.imPublisher = imPublisher;
-        this.threatService = threatService;
-    }
-
     public Page<BroadcastDto> getAllBroadcasts(Pageable pageable) {
-        return this.broadcastRepository.findAll(pageable).map(this.broadcastMapper::entityToDto);
+        return broadcastRepository.findAll(pageable).map(broadcastMapper::entityToDto);
     }
 
-    public Optional<BroadcastDto> getBroadcastById(UUID broadcastUUID) {
-        return this.broadcastRepository.findBroadcastByBroadcastUUID(broadcastUUID).map(this.broadcastMapper::entityToDto);
+    public Optional<BroadcastDto> getBroadcastById(UUID broadcastId) {
+        return broadcastRepository.findBroadcastByBroadcastUUID(broadcastId).map(broadcastMapper::entityToDto);
     }
 
-    public BroadcastDto saveBroadcast(UUID userUUID, BroadcastCreateDto broadcastDto) {
-        return saveOrUpdateBroadcast(userUUID, this.broadcastMapper.createDtoToEntity(broadcastDto), DRAFT, broadcastDto.threatId());
+    public BroadcastDto saveBroadcast(BroadcastCreateDto broadcastDto) {
+        return saveOrUpdateBroadcast(broadcastMapper.createDtoToEntity(broadcastDto), BroadcastStatus.DRAFT, broadcastDto.threatId());
     }
 
-    public BroadcastDto updateBroadcast(UUID userUUID, BroadcastDto broadcastDto) {
-        return saveOrUpdateBroadcast(userUUID, this.broadcastMapper.dtoToEntity(broadcastDto), broadcastDto.status(), broadcastDto.threatId());
+    public BroadcastDto updateBroadcast(BroadcastDto broadcastDto) {
+        return saveOrUpdateBroadcast(broadcastMapper.dtoToEntity(broadcastDto), broadcastDto.status(), broadcastDto.threatId());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    protected BroadcastDto saveOrUpdateBroadcast(UUID userUUID, Broadcast broadcast, EventStatus status, long threatId) {
-        isAdminHasPermission(userUUID);
-        final ThreatEvent threatEvent = threatService.getThreatById(threatId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Threat not found"));
+    public BroadcastDto saveOrUpdateBroadcast(Broadcast broadcast, BroadcastStatus status, UUID threatId) {
+        final ThreatEvent threatEvent = threatService.getThreatEntityById(threatId)
+                .orElseThrow(() -> new NotFoundException("Threat with id " + threatId + " not found"));
         broadcast.setThreatEvent(threatEvent);
         broadcast.setStatus(status);
-        if (status.equals(PUBLISHED)) {
+        if (status.equals(BroadcastStatus.PUBLISHED)) {
             broadcast.setInitiated(LocalDateTime.now());
         }
-        final Broadcast savedBroadcast = broadcastRepository.save(broadcast);
-        return this.broadcastMapper.entityToDto(savedBroadcast);
+        broadcast.getAffectedCounties().forEach(county -> county.setBroadcast(broadcast));
+        return this.broadcastMapper.entityToDto(broadcastRepository.save(broadcast));
     }
 
-    private void isAdminHasPermission(UUID userUUID) {
-        boolean canBroadcast = userService.canBroadcast(userUUID);
-        if (!canBroadcast) {
-            log.error("Broadcast is forbidden");
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Broadcast is forbidden");
-        }
-    }
-
-    public BroadcastDto saveAndPublish(UUID userUUID, BroadcastDto broadcastDto) {
-        BroadcastDto savedBroadcast = updateBroadcast(userUUID, broadcastDto);
-        if (savedBroadcast.status().equals(PUBLISHED)) {
-            final var threatById = threatService.getThreatById(broadcastDto.threatId()).get();
-            List<Long> countryIds = threatById.getAffectedCountries().stream().map(CountryThreat::getCountryId).toList();
-            List<Long> countyIds = threatById.getAffectedCountries().stream()
-                    .flatMap(item -> item.getAffectedCounties().stream())
-                    .map(CountyCountry::getCountyId)
-                    .toList();
-            var kafkaBroadcastDto = new KafkaBroadcastDto(
-                    broadcastDto.broadcastUUID(),
-                    broadcastDto.title(),
-                    threatById.getPeriodStart(),
-                    threatById.getPeriodEnd(),
-                    broadcastDto.englishMsg(),
-                    broadcastDto.swahiliMsg(),
-                    countryIds,
-                    countyIds
-            );
-            this.imPublisher.publishBroadcast(kafkaBroadcastDto);
+    //TODO publish should be separated funtionality
+    public BroadcastDto updateAndPublish(BroadcastDto broadcastDto) {
+        // TODO EVERYONE use broadcastId from controller instead from the DTO
+        final BroadcastDto savedBroadcast = updateBroadcast(broadcastDto);
+        if (savedBroadcast.status().equals(BroadcastStatus.PUBLISHED)) {
+            mapAndPublish(broadcastDto);
         }
         return savedBroadcast;
+    }
+
+    private void mapAndPublish(BroadcastDto broadcastDto) {
+        final KafkaBroadcastDto kafkaBroadcastDto = new KafkaBroadcastDto(
+                broadcastDto.broadcastId(),
+                broadcastDto.title(),
+                broadcastDto.periodStart(),
+                broadcastDto.periodEnd(),
+                broadcastDto.primaryLangMessage(),
+                broadcastDto.secondaryLangMessage(),
+                broadcastDto.countryId(),
+                broadcastDto.affectedCounties().stream().map(CreateBroadcastCountyDto::countyId).toList()
+        );
+        imPublisher.publishBroadcast(kafkaBroadcastDto);
     }
 }

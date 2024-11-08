@@ -7,21 +7,17 @@ import global.govstack.threat_service.dto.overview.OverviewFeedbackDto;
 import global.govstack.threat_service.dto.overview.OverviewThreatDto;
 import global.govstack.threat_service.service.BroadcastService;
 import global.govstack.threat_service.service.ThreatService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/api/v1/overview/")
+@RequiredArgsConstructor
+@RequestMapping(path = "/api/v1/overview")
 public class OverviewControllerImpl implements OverviewControllerInterface {
 
     private final ThreatService threatService;
     private final BroadcastService broadcastService;
-
-
-    public OverviewControllerImpl(ThreatService threatService, BroadcastService broadcastService) {
-        this.threatService = threatService;
-        this.broadcastService = broadcastService;
-    }
 
     @Override
     public OverviewDto getAllThreatsForCountry(String country) {
