@@ -11,6 +11,7 @@ public record ThreatDto(
     String type,
     String severity,
     List<MinimalCountryDto> affectedCountries,
+    String notes,
     String range,
     String periodStart,
     String periodEnd,
