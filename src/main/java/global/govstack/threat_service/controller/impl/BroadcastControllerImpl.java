@@ -25,8 +25,8 @@ public class BroadcastControllerImpl implements BroadcastControllerInterface {
     private final UserService userService;
 
     @Override
-    public Page<BroadcastDto> getAllBroadcasts(String country, boolean active, UUID userUUID, Pageable pageable) {
-        return broadcastService.getAllBroadcasts(country, active, userUUID, pageable);
+    public Page<BroadcastDto> getAllBroadcasts(String country, boolean active, UUID userId, Pageable pageable) {
+        return broadcastService.getAllBroadcasts(country, active, userId, pageable);
     }
 
     @Override

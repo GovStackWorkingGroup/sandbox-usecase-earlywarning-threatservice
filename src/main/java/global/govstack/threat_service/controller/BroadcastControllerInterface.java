@@ -15,7 +15,7 @@ public interface BroadcastControllerInterface {
     Page<BroadcastDto> getAllBroadcasts(
             @RequestParam(required = false) String country,
             @RequestParam(required = false, defaultValue = "false") boolean active,
-            @RequestParam(required = false) UUID userUUID,
+            @RequestParam(required = false) UUID userId,
             Pageable pageable);
 
     @PostMapping()

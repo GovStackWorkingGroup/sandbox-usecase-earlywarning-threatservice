@@ -33,8 +33,8 @@ public class BroadcastService {
     private final IMPublisher imPublisher;
     private final ThreatService threatService;
 
-    public Page<BroadcastDto> getAllBroadcasts(String country, boolean active, UUID userUUID, Pageable pageable) {
-        return broadcastRepository.findAll(country, active, userUUID, pageable).map(broadcastMapper::entityToDto);
+    public Page<BroadcastDto> getAllBroadcasts(String country, boolean active, UUID userId, Pageable pageable) {
+        return broadcastRepository.findAll(country, active, userId, pageable).map(broadcastMapper::entityToDto);
     }
 
     public Optional<BroadcastDto> getBroadcastById(UUID broadcastId) {
