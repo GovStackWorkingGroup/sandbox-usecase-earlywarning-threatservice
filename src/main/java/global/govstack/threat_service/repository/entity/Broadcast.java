@@ -35,6 +35,7 @@ public class Broadcast {
     private LocalDateTime periodStart;
     private LocalDateTime periodEnd;
     private LocalDateTime createdAt;
+    private UUID createdBy;
     private LocalDateTime initiated;
     @OneToMany(mappedBy = "broadcast", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<BroadcastCounty> affectedCounties;

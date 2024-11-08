@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS "broadcast"
     periodStart TIMESTAMP NOT NULL,
     periodEnd TIMESTAMP NOT NULL,
     createdAt TIMESTAMP NOT NULL DEFAULT NOW(),
+    createdBy UUID NOT NULL,
     initiated TIMESTAMP,
     FOREIGN KEY (threat_id) REFERENCES threat(id)
     );

@@ -8,4 +8,5 @@
     <include file="liquibase/init_migration.sql"/>
     <include file="liquibase/insert-dummy-threats.sql"/>
     <include file="liquibase/insert-dummy-broadcasts.sql"/>
+    <include file="liquibase/insert-dummy-broadcast-counties.sql"/>
 </databaseChangeLog>

@@ -1,8 +1,8 @@
 package global.govstack.threat_service.mapper;
 
-import global.govstack.threat_service.dto.KafkaThreatDto;
+import global.govstack.threat_service.dto.threat.KafkaThreatDto;
 import global.govstack.threat_service.repository.entity.ThreatEvent;
-import global.govstack.threat_service.dto.ThreatDto;
+import global.govstack.threat_service.dto.threat.ThreatDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

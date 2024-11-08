@@ -1,7 +1,7 @@
 package global.govstack.threat_service.controller;
 
-import global.govstack.threat_service.dto.BroadcastCreateDto;
-import global.govstack.threat_service.dto.BroadcastDto;
+import global.govstack.threat_service.dto.broadcast.BroadcastCreateDto;
+import global.govstack.threat_service.dto.broadcast.BroadcastDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -12,7 +12,11 @@ import java.util.UUID;
 public interface BroadcastControllerInterface {
 
     @GetMapping()
-    Page<BroadcastDto> getAllBroadcasts(Pageable pageable);
+    Page<BroadcastDto> getAllBroadcasts(
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false, defaultValue = "false") boolean active,
+            @RequestParam(required = false) UUID userId,
+            Pageable pageable);
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
