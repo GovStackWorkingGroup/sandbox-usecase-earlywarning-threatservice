@@ -8,7 +8,9 @@ import global.govstack.threat_service.dto.broadcast.KafkaBroadcastDto;
 import global.govstack.threat_service.mapper.BroadcastMapper;
 import global.govstack.threat_service.pub_sub.IMPublisher;
 import global.govstack.threat_service.repository.BroadcastRepository;
-import global.govstack.threat_service.repository.entity.*;
+import global.govstack.threat_service.repository.entity.Broadcast;
+import global.govstack.threat_service.repository.entity.BroadcastStatus;
+import global.govstack.threat_service.repository.entity.ThreatEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -45,8 +47,8 @@ public class BroadcastService {
         return saveOrUpdateBroadcast(broadcastMapper.createDtoToEntity(broadcastDto), BroadcastStatus.DRAFT, broadcastDto.threatId());
     }
 
-    public BroadcastDto updateBroadcast(BroadcastDto broadcastDto) {
-        return saveOrUpdateBroadcast(broadcastMapper.dtoToEntity(broadcastDto), broadcastDto.status(), broadcastDto.threatId());
+    public BroadcastDto updateBroadcast(BroadcastDto broadcastDto, BroadcastStatus broadcastStatus) {
+        return saveOrUpdateBroadcast(broadcastMapper.dtoToEntity(broadcastDto), broadcastStatus, broadcastDto.threatId());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -62,17 +64,7 @@ public class BroadcastService {
         return this.broadcastMapper.entityToDto(broadcastRepository.save(broadcast));
     }
 
-    //TODO publish should be separated funtionality
-    public BroadcastDto updateAndPublish(BroadcastDto broadcastDto) {
-        // TODO EVERYONE use broadcastId from controller instead from the DTO
-        final BroadcastDto savedBroadcast = updateBroadcast(broadcastDto);
-        if (savedBroadcast.status().equals(BroadcastStatus.PUBLISHED)) {
-            mapAndPublish(broadcastDto);
-        }
-        return savedBroadcast;
-    }
-
-    private void mapAndPublish(BroadcastDto broadcastDto) {
+    public BroadcastDto publishBroadcast(BroadcastDto broadcastDto) {
         final KafkaBroadcastDto kafkaBroadcastDto = new KafkaBroadcastDto(
                 broadcastDto.broadcastId(),
                 broadcastDto.title(),
@@ -83,6 +75,7 @@ public class BroadcastService {
                 broadcastDto.countryId(),
                 broadcastDto.affectedCounties().stream().map(CreateBroadcastCountyDto::countyId).toList()
         );
-        imPublisher.publishBroadcast(kafkaBroadcastDto);
+        this.imPublisher.publishBroadcast(kafkaBroadcastDto);
+        return this.updateBroadcast(broadcastDto, BroadcastStatus.PUBLISHED);
     }
 }
