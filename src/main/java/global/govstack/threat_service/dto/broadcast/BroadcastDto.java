@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public record BroadcastDto(
         UUID broadcastId,
+        long broadcastNumber,
         UUID threatId,
         String title,
         BroadcastStatus status,

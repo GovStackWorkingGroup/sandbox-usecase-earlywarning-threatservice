@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface BroadcastMapper {
+    @Mapping(source = "id", target = "broadcastNumber")
     @Mapping(source = "broadcastUUID", target = "broadcastId")
     @Mapping(source = "broadcast.threatEvent.threatUUID", target = "threatId")
     @Mapping(source = "broadcast", target = "affectedCounties", qualifiedByName = "assembleAffectedCounties")
