@@ -5,6 +5,7 @@ import global.govstack.threat_service.controller.exception.NotFoundException;
 import global.govstack.threat_service.controller.exception.UnauthorizedException;
 import global.govstack.threat_service.dto.broadcast.BroadcastCreateDto;
 import global.govstack.threat_service.dto.broadcast.BroadcastDto;
+import global.govstack.threat_service.repository.entity.BroadcastStatus;
 import global.govstack.threat_service.service.BroadcastService;
 import global.govstack.threat_service.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +27,8 @@ public class BroadcastControllerImpl implements BroadcastControllerInterface {
     private final UserService userService;
 
     @Override
-    public Page<BroadcastDto> getAllBroadcasts(String country, boolean active, UUID userId, Pageable pageable) {
-        return broadcastService.getAllBroadcasts(country, active, userId, pageable);
+    public Page<BroadcastDto> getAllBroadcasts(String country, boolean active, UUID userId, BroadcastStatus status, Pageable pageable) {
+        return broadcastService.getAllBroadcasts(country, active, userId, status, pageable);
     }
 
     @Override
