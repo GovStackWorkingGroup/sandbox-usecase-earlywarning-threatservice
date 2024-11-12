@@ -24,7 +24,7 @@ import java.util.UUID;
 public class UserService {
 
     @Value("${user-service.url}")
-    private static final String USER_SERVICE_URL = "";
+    private String USER_SERVICE_URL;
 
     private final APIUtil apiUtil;
     private final ObjectMapper mapper = new ObjectMapper();
@@ -35,14 +35,20 @@ public class UserService {
         this.httpHeaders.setContentType(MediaType.APPLICATION_JSON);
     }
 
-    public boolean canBroadcast(UUID userId) {
+    public boolean canBroadcast(UUID userId, int countryId) {
         log.info("check if the administrator has broadcasting rights");
-        return (boolean) this.restRequest("/api/v1/user/canBroadcast?" + userId.toString(), HttpMethod.GET, boolean.class);
+        final String endpoint = "user/canBroadcast?userId=";
+        final String finalUrl = endpoint +
+                userId.toString() +
+                "&countryId=" +
+                countryId;
+        log.info(finalUrl);
+        return (boolean) this.restRequest(finalUrl, HttpMethod.GET, boolean.class);
     }
 
     public List<CountryDto> getAllCountries() {
         log.info("get all countries");
-        var countries = (String) this.restRequest("/api/v1/utility/getAllCountries", HttpMethod.GET, String.class);
+        var countries = (String) this.restRequest("utility/getAllCountries", HttpMethod.GET, String.class);
         return mapIncomingMessage(countries);
     }
 

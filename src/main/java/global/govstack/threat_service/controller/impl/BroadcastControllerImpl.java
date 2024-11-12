@@ -48,13 +48,13 @@ public class BroadcastControllerImpl implements BroadcastControllerInterface {
     }
 
     @Override
-    public ResponseEntity<Boolean> userCanBroadcast(UUID userId) {
-        return this.userService.canBroadcast(userId) ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    public ResponseEntity<Boolean> userCanBroadcast(UUID userId, int countryId) {
+        return this.userService.canBroadcast(userId, countryId) ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @Override
     public BroadcastDto publishBroadcast(UUID broadcastId, UUID userId, BroadcastDto broadcastDto) {
-        if (this.userService.canBroadcast(userId)) {
+        if (this.userService.canBroadcast(userId, broadcastDto.countryId().intValue())) {
             return this.broadcastService.publishBroadcast(broadcastDto);
         }
         throw new UnauthorizedException("User doesn't have publish permission");

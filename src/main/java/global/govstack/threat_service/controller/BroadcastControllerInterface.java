@@ -38,8 +38,8 @@ public interface BroadcastControllerInterface {
             @RequestBody BroadcastDto broadcastDto
     );
 
-    @GetMapping(path = "/{userId}")
-    ResponseEntity<Boolean> userCanBroadcast(@PathVariable("userId")UUID userId);
+    @GetMapping(path = "/canBroadcast")
+    ResponseEntity<Boolean> userCanBroadcast(@RequestParam("userId") UUID userId, @RequestParam("countryId") int countryId);
 
     @PostMapping(path = "/{broadcastId}")
     @ResponseStatus(HttpStatus.OK)
