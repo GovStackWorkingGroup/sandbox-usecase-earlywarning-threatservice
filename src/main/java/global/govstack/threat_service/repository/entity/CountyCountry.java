@@ -11,7 +11,7 @@ import lombok.Setter;
 public class CountyCountry {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "county_country_seq")
-    @SequenceGenerator(name = "county_country_seq", allocationSize = 1)
+    @SequenceGenerator(name = "county_country_seq", sequenceName = "county_country_id_seq", allocationSize = 1)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "country_threat_id", nullable = false)

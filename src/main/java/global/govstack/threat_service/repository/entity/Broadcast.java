@@ -15,8 +15,8 @@ import java.util.UUID;
 public class Broadcast {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "broadcast_id_seq")
-    @SequenceGenerator(name = "broadcast_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "broadcast_seq")
+    @SequenceGenerator(name = "broadcast_seq", sequenceName = "broadcast_id_seq", allocationSize = 1)
     private Long id;
     private UUID broadcastUUID;
     @ManyToOne(fetch = FetchType.LAZY)

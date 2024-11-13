@@ -13,7 +13,7 @@ import java.util.List;
 public class CountryThreat {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "country_threat_seq")
-    @SequenceGenerator(name = "country_threat_seq", allocationSize = 1)
+    @SequenceGenerator(name = "country_threat_seq", sequenceName = "country_threat_id_seq", allocationSize = 1)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "threat_id", nullable = false)
