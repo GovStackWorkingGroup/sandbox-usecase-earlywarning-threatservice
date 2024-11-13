@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS "broadcast"
     title    VARCHAR(255) NOT NULL,
     status   VARCHAR(255) NOT NULL,
     notes VARCHAR(255),
-    channelType VARCHAR(50) NOT NULL,
+    channelType VARCHAR(50),
     countryId BIGINT NOT NULL,
     countryName VARCHAR(255) NOT NULL,
     primaryLangMessage TEXT,

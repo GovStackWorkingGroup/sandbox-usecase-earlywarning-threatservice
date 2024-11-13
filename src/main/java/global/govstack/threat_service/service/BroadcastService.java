@@ -57,7 +57,6 @@ public class BroadcastService {
         broadcast.setThreatEvent(threat);
         broadcast.setTitle(BroadcastStatus.DRAFT.toString());
         broadcast.setStatus(BroadcastStatus.DRAFT);
-        broadcast.setChannelType(ChannelType.DRAFT);
         broadcast.setCountryId(1L);
         broadcast.setCountryName("Kenya");
         broadcast.setPrimaryLangMessage(BroadcastStatus.DRAFT.toString());
