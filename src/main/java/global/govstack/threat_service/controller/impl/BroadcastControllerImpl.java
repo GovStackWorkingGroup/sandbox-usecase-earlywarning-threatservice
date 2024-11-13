@@ -2,7 +2,7 @@ package global.govstack.threat_service.controller.impl;
 
 import global.govstack.threat_service.controller.BroadcastControllerInterface;
 import global.govstack.threat_service.controller.exception.NotFoundException;
-import global.govstack.threat_service.dto.broadcast.BroadcastCreateDto;
+import global.govstack.threat_service.dto.broadcast.ThreatUuidDto;
 import global.govstack.threat_service.dto.broadcast.BroadcastDto;
 import global.govstack.threat_service.repository.entity.BroadcastStatus;
 import global.govstack.threat_service.service.BroadcastService;
@@ -37,7 +37,7 @@ public class BroadcastControllerImpl implements BroadcastControllerInterface {
     }
 
     @Override
-    public BroadcastDto saveBroadcast(BroadcastCreateDto broadcastDto) {
+    public UUID createBroadcast(ThreatUuidDto broadcastDto) {
         return broadcastService.saveBroadcast(broadcastDto);
     }
 

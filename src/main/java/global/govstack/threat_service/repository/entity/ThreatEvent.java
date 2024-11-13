@@ -15,7 +15,7 @@ import java.util.UUID;
 public class ThreatEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "threat_seq")
-    @SequenceGenerator(name = "threat_seq", allocationSize = 1)
+    @SequenceGenerator(name = "threat_seq", sequenceName = "threat_id_seq", allocationSize = 1)
     private Long id;
     private UUID threatUUID;
     private String type;
@@ -34,5 +34,4 @@ public class ThreatEvent {
         this.threatUUID = UUID.randomUUID();
         this.createdAt = LocalDateTime.now();
     }
-
 }
