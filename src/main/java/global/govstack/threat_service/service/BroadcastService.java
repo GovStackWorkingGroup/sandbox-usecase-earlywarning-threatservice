@@ -4,7 +4,7 @@ import global.govstack.threat_service.controller.exception.NotFoundException;
 import global.govstack.threat_service.dto.broadcast.BroadcastDto;
 import global.govstack.threat_service.dto.broadcast.CreateBroadcastCountyDto;
 import global.govstack.threat_service.dto.broadcast.KafkaBroadcastDto;
-import global.govstack.threat_service.dto.broadcast.ThreatUuidDto;
+import global.govstack.threat_service.dto.broadcast.ThreatIdDto;
 import global.govstack.threat_service.mapper.BroadcastMapper;
 import global.govstack.threat_service.pub_sub.IMPublisher;
 import global.govstack.threat_service.repository.BroadcastRepository;
@@ -45,14 +45,14 @@ public class BroadcastService {
         return broadcastRepository.findBroadcastByBroadcastUUID(broadcastId).map(broadcastMapper::entityToDto);
     }
 
-    public UUID saveBroadcast(ThreatUuidDto broadcastDto) {
-        final ThreatEvent threat = threatService.getThreatEntityById(broadcastDto.threatUUID())
-                .orElseThrow(() -> new NotFoundException("Threat with id " + broadcastDto.threatUUID() + " not found"));
+    public BroadcastDto saveBroadcast(ThreatIdDto threatIdDto) {
+        final ThreatEvent threat = threatService.getThreatEntityById(threatIdDto.threatId())
+                .orElseThrow(() -> new NotFoundException("Threat with id " + threatIdDto.threatId() + " not found"));
         final Broadcast broadcast = createDraftBroadcast(threat);
         final List<BroadcastCounty> affectedCounties = getAffectedCounties(threat, broadcast);
         broadcast.setAffectedCounties(affectedCounties);
-        broadcastRepository.save(broadcast);
-        return broadcast.getBroadcastUUID();
+        final Broadcast savedBroadcast = broadcastRepository.save(broadcast);
+        return broadcastMapper.entityToDto(savedBroadcast);
     }
 
     private Broadcast createDraftBroadcast(ThreatEvent threat) {
