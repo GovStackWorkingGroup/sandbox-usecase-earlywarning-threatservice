@@ -8,10 +8,7 @@ import global.govstack.threat_service.dto.broadcast.ThreatUuidDto;
 import global.govstack.threat_service.mapper.BroadcastMapper;
 import global.govstack.threat_service.pub_sub.IMPublisher;
 import global.govstack.threat_service.repository.BroadcastRepository;
-import global.govstack.threat_service.repository.entity.Broadcast;
-import global.govstack.threat_service.repository.entity.BroadcastCounty;
-import global.govstack.threat_service.repository.entity.BroadcastStatus;
-import global.govstack.threat_service.repository.entity.ThreatEvent;
+import global.govstack.threat_service.repository.entity.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -60,6 +57,7 @@ public class BroadcastService {
         broadcast.setThreatEvent(threat);
         broadcast.setTitle(BroadcastStatus.DRAFT.toString());
         broadcast.setStatus(BroadcastStatus.DRAFT);
+        broadcast.setChannelType(ChannelType.DRAFT);
         broadcast.setCountryId(1L);
         broadcast.setCountryName("Kenya");
         broadcast.setPrimaryLangMessage(BroadcastStatus.DRAFT.toString());
@@ -114,6 +112,7 @@ public class BroadcastService {
         final KafkaBroadcastDto kafkaBroadcastDto = new KafkaBroadcastDto(
                 broadcastDto.broadcastId(),
                 broadcastDto.title(),
+                broadcastDto.channelType(),
                 broadcastDto.periodStart(),
                 broadcastDto.periodEnd(),
                 broadcastDto.primaryLangMessage(),

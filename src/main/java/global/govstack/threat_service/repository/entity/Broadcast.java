@@ -26,6 +26,7 @@ public class Broadcast {
     @Enumerated(EnumType.STRING)
     private BroadcastStatus status;
     private String notes;
+    private ChannelType channelType;
     private Long countryId;
     private String countryName;
     @Column(columnDefinition = "TEXT")

@@ -13,6 +13,7 @@ public record BroadcastDto(
         String title,
         BroadcastStatus status,
         String notes,
+        String channelType,
         String primaryLangMessage,
         String secondaryLangMessage,
         Long countryId,

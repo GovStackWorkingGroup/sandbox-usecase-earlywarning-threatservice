@@ -10,6 +10,7 @@ import java.util.UUID;
 public record KafkaBroadcastDto(
     UUID broadcastId,
     String broadcastTitle,
+    String channelType,
     LocalDateTime startDate,
     LocalDateTime endDate,
     String textPrimaryLang,
