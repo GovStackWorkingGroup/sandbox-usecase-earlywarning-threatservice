@@ -1,6 +1,6 @@
 package global.govstack.threat_service.controller;
 
-import global.govstack.threat_service.dto.broadcast.ThreatUuidDto;
+import global.govstack.threat_service.dto.broadcast.ThreatIdDto;
 import global.govstack.threat_service.dto.broadcast.BroadcastDto;
 import global.govstack.threat_service.repository.entity.BroadcastStatus;
 import org.springframework.data.domain.Page;
@@ -23,7 +23,7 @@ public interface BroadcastControllerInterface {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    UUID createBroadcast(@RequestBody ThreatUuidDto broadcastDto);
+    BroadcastDto createBroadcast(@RequestBody ThreatIdDto broadcastDto);
 
     @GetMapping("/{broadcastId}")
     BroadcastDto getBroadcastDetails(@PathVariable("broadcastId") UUID broadcastId);
