@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-@Component
 @Slf4j
+@Component
 public class APIUtil { //NOTE: for the POC it's ok to go with sync call, but for production version async approach should be used
 
     private final RestTemplate restTemplate;

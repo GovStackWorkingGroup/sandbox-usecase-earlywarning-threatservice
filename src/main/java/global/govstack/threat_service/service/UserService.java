@@ -2,9 +2,10 @@ package global.govstack.threat_service.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import global.govstack.threat_service.util.APIUtil;
 import global.govstack.threat_service.controller.exception.InternalServerException;
+import global.govstack.threat_service.controller.exception.UnauthorizedException;
 import global.govstack.threat_service.service.location.CountryDto;
+import global.govstack.threat_service.util.APIUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,7 @@ import java.util.UUID;
 public class UserService {
 
     @Value("${user-service.url}")
-    private static final String USER_SERVICE_URL = "";
+    private String USER_SERVICE_URL;
 
     private final APIUtil apiUtil;
     private final ObjectMapper mapper = new ObjectMapper();
@@ -35,14 +36,26 @@ public class UserService {
         this.httpHeaders.setContentType(MediaType.APPLICATION_JSON);
     }
 
-    public boolean canBroadcast(UUID userId) {
+    public boolean canBroadcast(UUID userId, int countryId) {
         log.info("check if the administrator has broadcasting rights");
-        return (boolean) this.restRequest("/api/v1/user/canBroadcast?" + userId.toString(), HttpMethod.GET, boolean.class);
+        final String finalUrl = "users/canBroadcast?userUuid=" +
+                userId.toString() +
+                "&countryId=" +
+                countryId;
+        try {
+            this.restRequest(finalUrl, HttpMethod.GET, Void.class);
+            return Boolean.TRUE;
+        } catch (ResponseStatusException e) {
+            if (e.getStatusCode().equals(HttpStatus.SERVICE_UNAVAILABLE)) {
+                throw new UnauthorizedException("User is not authorized to broadcast");
+            }
+            throw new InternalServerException("Communication to user-service failed");
+        }
     }
 
     public List<CountryDto> getAllCountries() {
         log.info("get all countries");
-        var countries = (String) this.restRequest("/api/v1/utility/getAllCountries", HttpMethod.GET, String.class);
+        var countries = (String) this.restRequest("utility/getAllCountries", HttpMethod.GET, String.class);
         return mapIncomingMessage(countries);
     }
 
