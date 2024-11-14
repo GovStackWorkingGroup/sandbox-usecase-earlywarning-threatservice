@@ -1,6 +1,5 @@
 package global.govstack.threat_service.mapper;
 
-import global.govstack.threat_service.dto.broadcast.BroadcastCreateDto;
 import global.govstack.threat_service.dto.broadcast.BroadcastDto;
 import global.govstack.threat_service.dto.broadcast.CreateBroadcastCountyDto;
 import global.govstack.threat_service.repository.entity.Broadcast;
@@ -21,9 +20,6 @@ public interface BroadcastMapper {
 
     @Mapping(source = "broadcastId", target = "broadcastUUID")
     Broadcast dtoToEntity(BroadcastDto broadcastDto);
-
-    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
-    Broadcast createDtoToEntity(BroadcastCreateDto broadcastCreateDto);
 
     @Named("assembleAffectedCounties")
     default List<CreateBroadcastCountyDto> assembleAffectedCounties(Broadcast broadcast) {

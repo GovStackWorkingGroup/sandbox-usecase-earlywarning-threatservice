@@ -1,4 +1,4 @@
-CREATE SEQUENCE IF NOT EXISTS threat_seq
+CREATE SEQUENCE IF NOT EXISTS threat_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -7,7 +7,7 @@ CREATE SEQUENCE IF NOT EXISTS threat_seq
 
 CREATE TABLE IF NOT EXISTS "threat"
 (
-    id           BIGINT NOT NULL DEFAULT nextval('threat_seq') PRIMARY KEY,
+    id           BIGINT NOT NULL DEFAULT nextval('threat_id_seq') PRIMARY KEY,
     threatUUID   UUID NOT NULL,
     type    VARCHAR(255) NOT NULL,
     severity   VARCHAR(255) NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS "broadcast"
     );
 
 
-CREATE SEQUENCE IF NOT EXISTS country_threat_seq
+CREATE SEQUENCE IF NOT EXISTS country_threat_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -55,7 +55,7 @@ CREATE SEQUENCE IF NOT EXISTS country_threat_seq
     CACHE 1;
 
 CREATE TABLE IF NOT EXISTS "country_threat" (
-    id BIGINT NOT NULL DEFAULT nextval('country_threat_seq') PRIMARY KEY,
+    id BIGINT NOT NULL DEFAULT nextval('country_threat_id_seq') PRIMARY KEY,
     threat_id BIGINT NOT NULL,
     countryId BIGINT NOT NULL,
     countryName  VARCHAR(255) NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS "country_threat" (
     );
 
 
-CREATE SEQUENCE IF NOT EXISTS county_country_seq
+CREATE SEQUENCE IF NOT EXISTS county_country_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -71,14 +71,14 @@ CREATE SEQUENCE IF NOT EXISTS county_country_seq
     CACHE 1;
 
 CREATE TABLE IF NOT EXISTS "county_country" (
-    id BIGINT NOT NULL DEFAULT nextval('county_country_seq') PRIMARY KEY,
+    id BIGINT NOT NULL DEFAULT nextval('county_country_id_seq') PRIMARY KEY,
     country_threat_id BIGINT NOT NULL,
     countyId BIGINT NOT NULL,
     countyName  VARCHAR(255) NOT NULL,
     FOREIGN KEY (country_threat_id) REFERENCES country_threat(id)
     );
 
-CREATE SEQUENCE IF NOT EXISTS broadcast_county_seq
+CREATE SEQUENCE IF NOT EXISTS broadcast_county_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -86,7 +86,7 @@ CREATE SEQUENCE IF NOT EXISTS broadcast_county_seq
     CACHE 1;
 
 CREATE TABLE IF NOT EXISTS "broadcast_county" (
-    id BIGINT NOT NULL DEFAULT nextval('broadcast_county_seq') PRIMARY KEY,
+    id BIGINT NOT NULL DEFAULT nextval('broadcast_county_id_seq') PRIMARY KEY,
     broadcast_id BIGINT NOT NULL,
     countyId BIGINT NOT NULL,
     countyName  VARCHAR(255) NOT NULL,
