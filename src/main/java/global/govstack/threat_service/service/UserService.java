@@ -2,9 +2,10 @@ package global.govstack.threat_service.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import global.govstack.threat_service.util.APIUtil;
 import global.govstack.threat_service.controller.exception.InternalServerException;
+import global.govstack.threat_service.controller.exception.UnauthorizedException;
 import global.govstack.threat_service.service.location.CountryDto;
+import global.govstack.threat_service.util.APIUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,13 +38,19 @@ public class UserService {
 
     public boolean canBroadcast(UUID userId, int countryId) {
         log.info("check if the administrator has broadcasting rights");
-        final String endpoint = "user/canBroadcast?userId=";
-        final String finalUrl = endpoint +
+        final String finalUrl = "users/canBroadcast?userUuid=" +
                 userId.toString() +
                 "&countryId=" +
                 countryId;
-        log.info(finalUrl);
-        return (boolean) this.restRequest(finalUrl, HttpMethod.GET, boolean.class);
+        try {
+            this.restRequest(finalUrl, HttpMethod.GET, Void.class);
+            return Boolean.TRUE;
+        } catch (ResponseStatusException e) {
+            if (e.getStatusCode().equals(HttpStatus.SERVICE_UNAVAILABLE)) {
+                throw new UnauthorizedException("User is not authorized to broadcast");
+            }
+            throw new InternalServerException("Communication to user-service failed");
+        }
     }
 
     public List<CountryDto> getAllCountries() {
