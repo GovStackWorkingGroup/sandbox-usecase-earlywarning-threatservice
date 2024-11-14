@@ -90,7 +90,7 @@ public class BroadcastService {
                 .orElseThrow(() -> new NotFoundException("Threat with id " + threatId + " not found"));
         broadcast.setThreatEvent(threatEvent);
         broadcast.setStatus(status);
-        if (status.equals(BroadcastStatus.PUBLISHED)) {
+        if (status.equals(BroadcastStatus.PROCESSING)) {
             broadcast.setInitiated(LocalDateTime.now());
         }
         broadcast.getAffectedCounties().forEach(county -> county.setBroadcast(broadcast));
@@ -110,6 +110,6 @@ public class BroadcastService {
                 broadcastDto.affectedCounties().stream().map(CreateBroadcastCountyDto::countyId).toList()
         );
         this.imPublisher.publishBroadcast(kafkaBroadcastDto);
-        return this.updateBroadcast(broadcastDto, BroadcastStatus.PUBLISHED);
+        return this.updateBroadcast(broadcastDto, BroadcastStatus.PROCESSING);
     }
 }
