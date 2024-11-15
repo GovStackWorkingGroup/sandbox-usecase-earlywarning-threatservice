@@ -34,7 +34,6 @@ public interface BroadcastControllerInterface {
     @ResponseBody
     BroadcastDto updateBroadcast(
             @PathVariable("broadcastId") UUID broadcastId,
-            @RequestParam UUID userId,
             @RequestBody BroadcastDto broadcastDto
     );
 
@@ -45,6 +44,7 @@ public interface BroadcastControllerInterface {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     ResponseEntity<BroadcastDto> publishBroadcast(
+            @RequestParam UUID broadcastId,
             @RequestParam UUID userId,
             @RequestBody BroadcastDto broadcastDto);
 }

@@ -1,5 +1,6 @@
 package global.govstack.threat_service.service;
 
+import global.govstack.threat_service.controller.exception.InternalServerException;
 import global.govstack.threat_service.controller.exception.NotFoundException;
 import global.govstack.threat_service.dto.broadcast.BroadcastDto;
 import global.govstack.threat_service.dto.broadcast.CreateBroadcastCountyDto;
@@ -14,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -80,26 +80,34 @@ public class BroadcastService {
                 })).toList();
     }
 
-    public BroadcastDto updateBroadcast(BroadcastDto broadcastDto, BroadcastStatus broadcastStatus) {
-        return saveOrUpdateBroadcast(broadcastMapper.dtoToEntity(broadcastDto), broadcastStatus, broadcastDto.threatId());
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public BroadcastDto saveOrUpdateBroadcast(Broadcast broadcast, BroadcastStatus status, UUID threatId) {
-        final ThreatEvent threatEvent = threatService.getThreatEntityById(threatId)
-                .orElseThrow(() -> new NotFoundException("Threat with id " + threatId + " not found"));
-        broadcast.setThreatEvent(threatEvent);
-        broadcast.setStatus(status);
-        if (status.equals(BroadcastStatus.PROCESSING)) {
-            broadcast.setInitiated(LocalDateTime.now());
+    public BroadcastDto updateBroadcast(UUID broadcastId, BroadcastDto broadcastDto, BroadcastStatus status) {
+        if(broadcastDto.primaryLangMessage().isBlank() && broadcastDto.secondaryLangMessage().isBlank()){
+            throw new InternalServerException("Broadcast has to have at least one message");
         }
-        broadcast.getAffectedCounties().forEach(county -> county.setBroadcast(broadcast));
-        return this.broadcastMapper.entityToDto(broadcastRepository.save(broadcast));
+
+        final Optional<Broadcast> existingBroadcast = this.broadcastRepository.findBroadcastByBroadcastUUID(broadcastId);
+        if (existingBroadcast.isPresent()) {
+            Broadcast updatedBroadcast = existingBroadcast.get();
+            updatedBroadcast.setChannelType(ChannelType.valueOf(broadcastDto.channelType()).name());
+            updatedBroadcast.setTitle(broadcastDto.title());
+            updatedBroadcast.setStatus(status);
+            updatedBroadcast.setCountryId(broadcastDto.countryId());
+            updatedBroadcast.setCountryName(broadcastDto.countryName());
+            updatedBroadcast.setPrimaryLangMessage(broadcastDto.primaryLangMessage());
+            updatedBroadcast.setSecondaryLangMessage(broadcastDto.secondaryLangMessage());
+            if (status.equals(BroadcastStatus.PROCESSING)) {
+                updatedBroadcast.setInitiated(LocalDateTime.now());
+            }
+
+            this.broadcastRepository.save(updatedBroadcast);
+            return this.broadcastMapper.entityToDto(updatedBroadcast);
+        }
+        throw new InternalServerException("No broadcast found for ID: " + broadcastId);
     }
 
-    public BroadcastDto publishBroadcast(BroadcastDto broadcastDto) {
+    public BroadcastDto publishBroadcast(UUID broadcastId, BroadcastDto broadcastDto) {
         final KafkaBroadcastDto kafkaBroadcastDto = new KafkaBroadcastDto(
-                broadcastDto.broadcastId(),
+                broadcastId,
                 broadcastDto.title(),
                 broadcastDto.channelType(),
                 broadcastDto.periodStart(),
@@ -110,6 +118,6 @@ public class BroadcastService {
                 broadcastDto.affectedCounties().stream().map(CreateBroadcastCountyDto::countyId).toList()
         );
         this.imPublisher.publishBroadcast(kafkaBroadcastDto);
-        return this.updateBroadcast(broadcastDto, BroadcastStatus.PROCESSING);
+        return this.updateBroadcast(broadcastId, broadcastDto, BroadcastStatus.PROCESSING);
     }
 }

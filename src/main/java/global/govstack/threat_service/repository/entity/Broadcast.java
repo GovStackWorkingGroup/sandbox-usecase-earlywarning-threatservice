@@ -3,6 +3,7 @@ package global.govstack.threat_service.repository.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Table(name = "broadcast")
+//@DynamicUpdate
 public class Broadcast {
 
     @Id
@@ -26,7 +28,7 @@ public class Broadcast {
     @Enumerated(EnumType.STRING)
     private BroadcastStatus status;
     private String notes;
-    private ChannelType channelType;
+    private String channelType;
     private Long countryId;
     private String countryName;
     @Column(columnDefinition = "TEXT")

@@ -37,3 +37,6 @@ message:
 
 user-service:
   url: http://user-service:8080/api/v1/
+server:
+  error:
+    include-message: always
