@@ -81,10 +81,6 @@ public class BroadcastService {
     }
 
     public BroadcastDto updateBroadcast(UUID broadcastId, BroadcastDto broadcastDto, BroadcastStatus status) {
-        if(broadcastDto.primaryLangMessage().isBlank() && broadcastDto.secondaryLangMessage().isBlank()){
-            throw new InternalServerException("Broadcast has to have at least one message");
-        }
-
         final Optional<Broadcast> existingBroadcast = this.broadcastRepository.findBroadcastByBroadcastUUID(broadcastId);
         if (existingBroadcast.isPresent()) {
             Broadcast updatedBroadcast = existingBroadcast.get();
@@ -106,6 +102,9 @@ public class BroadcastService {
     }
 
     public BroadcastDto publishBroadcast(UUID broadcastId, BroadcastDto broadcastDto) {
+        if(broadcastDto.primaryLangMessage().isBlank() && broadcastDto.secondaryLangMessage().isBlank()){
+            throw new InternalServerException("Broadcast has to have at least one message to be published");
+        }
         final KafkaBroadcastDto kafkaBroadcastDto = new KafkaBroadcastDto(
                 broadcastId,
                 broadcastDto.title(),
