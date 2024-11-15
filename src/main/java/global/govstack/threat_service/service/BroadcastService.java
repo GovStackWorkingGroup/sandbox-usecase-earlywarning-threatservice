@@ -9,7 +9,10 @@ import global.govstack.threat_service.dto.broadcast.ThreatIdDto;
 import global.govstack.threat_service.mapper.BroadcastMapper;
 import global.govstack.threat_service.pub_sub.IMPublisher;
 import global.govstack.threat_service.repository.BroadcastRepository;
-import global.govstack.threat_service.repository.entity.*;
+import global.govstack.threat_service.repository.entity.Broadcast;
+import global.govstack.threat_service.repository.entity.BroadcastCounty;
+import global.govstack.threat_service.repository.entity.BroadcastStatus;
+import global.govstack.threat_service.repository.entity.ThreatEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -118,5 +121,15 @@ public class BroadcastService {
         );
         this.imPublisher.publishBroadcast(kafkaBroadcastDto);
         return this.updateBroadcast(broadcastId, broadcastDto, BroadcastStatus.PROCESSING);
+    }
+
+    public void delete(UUID broadcastId) {
+        Broadcast broadcast = broadcastRepository.findBroadcastByBroadcastUUID(broadcastId)
+                .orElseThrow(() -> new NotFoundException("Broadcast with id " + broadcastId + " not found"));
+        if (broadcast.getStatus().equals(BroadcastStatus.DRAFT)){
+            broadcastRepository.delete(broadcast);
+        } else {
+            throw new InternalServerException("Cannot delete a broadcast that is not in draft status");
+        }
     }
 }
