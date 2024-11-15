@@ -58,4 +58,13 @@ public class BroadcastControllerImpl implements BroadcastControllerInterface {
         }
         throw new UnauthorizedException("User doesn't have publish permission");
     }
+
+    @Override
+    public void deleteBroadcast(UUID broadcastId, UUID userId, int countryId) {
+        if (userService.canBroadcast(userId, countryId)) {
+            broadcastService.delete(broadcastId);
+        } else {
+            throw new UnauthorizedException("User doesn't have delete permission");
+        }
+    }
 }

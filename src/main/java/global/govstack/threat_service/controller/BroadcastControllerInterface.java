@@ -47,4 +47,10 @@ public interface BroadcastControllerInterface {
     ResponseEntity<BroadcastDto> publishBroadcast(
             @RequestParam UUID userId,
             @RequestBody BroadcastDto broadcastDto);
+
+    @DeleteMapping("/{broadcastId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void deleteBroadcast(@PathVariable("broadcastId") UUID broadcastId,
+                         @RequestParam("userId") UUID userId,
+                         @RequestParam("countryId") int countryId);
 }

@@ -32,4 +32,6 @@ public interface BroadcastRepository extends ListCrudRepository<Broadcast, Long>
         @Param("status") BroadcastStatus status,
         Pageable pageable
     );
+
+    Optional<Broadcast> getBroadcastByBroadcastUUID(UUID broadcastUUID);
 }
