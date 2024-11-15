@@ -42,8 +42,8 @@ public class BroadcastControllerImpl implements BroadcastControllerInterface {
     }
 
     @Override
-    public BroadcastDto updateBroadcast(UUID broadcastId, UUID userId, BroadcastDto broadcastDto) {
-        return broadcastService.updateBroadcast(broadcastDto, broadcastDto.status());
+    public BroadcastDto updateBroadcast(UUID broadcastId, BroadcastDto broadcastDto) {
+        return broadcastService.updateBroadcast(broadcastId, broadcastDto, broadcastDto.status());
     }
 
     @Override
@@ -52,9 +52,9 @@ public class BroadcastControllerImpl implements BroadcastControllerInterface {
     }
 
     @Override
-    public ResponseEntity<BroadcastDto> publishBroadcast(UUID userId, BroadcastDto broadcastDto) {
+    public ResponseEntity<BroadcastDto> publishBroadcast(UUID broadcastId, UUID userId, BroadcastDto broadcastDto) {
         if (this.userService.canBroadcast(userId, broadcastDto.countryId().intValue())) {
-            return ResponseEntity.ok().body(this.broadcastService.publishBroadcast(broadcastDto));
+            return ResponseEntity.ok().body(this.broadcastService.publishBroadcast(broadcastId, broadcastDto));
         }
         throw new UnauthorizedException("User doesn't have publish permission");
     }
