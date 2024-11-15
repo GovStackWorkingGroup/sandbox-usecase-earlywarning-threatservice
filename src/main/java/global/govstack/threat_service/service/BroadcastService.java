@@ -33,6 +33,7 @@ public class BroadcastService {
     private final BroadcastMapper broadcastMapper;
     private final IMPublisher imPublisher;
     private final ThreatService threatService;
+    private static final String EMPTY_STRING = "";
 
     public Page<BroadcastDto> getAllBroadcasts(String country, boolean active, UUID userId, BroadcastStatus status, Pageable pageable) {
         return broadcastRepository.findAll(country, active, userId, status, pageable).map(broadcastMapper::entityToDto);
@@ -55,12 +56,12 @@ public class BroadcastService {
     private Broadcast createDraftBroadcast(ThreatEvent threat) {
         final Broadcast broadcast = new Broadcast();
         broadcast.setThreatEvent(threat);
-        broadcast.setTitle(BroadcastStatus.DRAFT.toString());
+        broadcast.setTitle(EMPTY_STRING);
         broadcast.setStatus(BroadcastStatus.DRAFT);
         broadcast.setCountryId(1L);
         broadcast.setCountryName("Kenya");
-        broadcast.setPrimaryLangMessage(BroadcastStatus.DRAFT.toString());
-        broadcast.setSecondaryLangMessage(BroadcastStatus.DRAFT.toString());
+        broadcast.setPrimaryLangMessage(EMPTY_STRING);
+        broadcast.setSecondaryLangMessage(EMPTY_STRING);
         broadcast.setPeriodStart(threat.getPeriodStart());
         broadcast.setPeriodEnd(threat.getPeriodEnd());
         broadcast.setCreatedAt(LocalDateTime.now());
@@ -102,7 +103,7 @@ public class BroadcastService {
     }
 
     public BroadcastDto publishBroadcast(UUID broadcastId, BroadcastDto broadcastDto) {
-        if(broadcastDto.primaryLangMessage().isBlank() && broadcastDto.secondaryLangMessage().isBlank()){
+        if (broadcastDto.primaryLangMessage().isBlank() && broadcastDto.secondaryLangMessage().isBlank()) {
             throw new InternalServerException("Broadcast has to have at least one message to be published");
         }
         final KafkaBroadcastDto kafkaBroadcastDto = new KafkaBroadcastDto(
@@ -123,7 +124,7 @@ public class BroadcastService {
     public void delete(UUID broadcastId) {
         Broadcast broadcast = broadcastRepository.findBroadcastByBroadcastUUID(broadcastId)
                 .orElseThrow(() -> new NotFoundException("Broadcast with id " + broadcastId + " not found"));
-        if (broadcast.getStatus().equals(BroadcastStatus.DRAFT)){
+        if (broadcast.getStatus().equals(BroadcastStatus.DRAFT)) {
             broadcastRepository.delete(broadcast);
         } else {
             throw new InternalServerException("Cannot delete a broadcast that is not in draft status");

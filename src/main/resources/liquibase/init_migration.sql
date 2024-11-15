@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS "broadcast"
     id           BIGINT NOT NULL DEFAULT nextval('broadcast_id_seq') PRIMARY KEY,
     broadcastUUID UUID NOT NULL,
     threat_id BIGINT NOT NULL,
-    title    VARCHAR(255) NOT NULL,
+    title    VARCHAR(255),
     status   VARCHAR(255) NOT NULL,
     notes VARCHAR(255),
     channelType VARCHAR(50),
