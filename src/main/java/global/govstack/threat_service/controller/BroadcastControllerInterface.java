@@ -40,13 +40,12 @@ public interface BroadcastControllerInterface {
     @GetMapping(path = "/canBroadcast")
     ResponseEntity<?> userCanBroadcast(@RequestParam("userId") UUID userId, @RequestParam("countryId") int countryId);
 
-    @PostMapping(path = "/publishBroadcast")
+    @PostMapping(path = "/{broadcastId}/publish")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    ResponseEntity<BroadcastDto> publishBroadcast(
-            @RequestParam UUID broadcastId,
-            @RequestParam UUID userId,
-            @RequestBody BroadcastDto broadcastDto);
+    BroadcastDto publishBroadcast(
+            @PathVariable UUID broadcastId,
+            @RequestParam UUID userId);
 
     @DeleteMapping("/{broadcastId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

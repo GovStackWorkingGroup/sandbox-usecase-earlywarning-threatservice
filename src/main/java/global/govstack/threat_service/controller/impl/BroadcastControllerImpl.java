@@ -2,12 +2,10 @@ package global.govstack.threat_service.controller.impl;
 
 import global.govstack.threat_service.controller.BroadcastControllerInterface;
 import global.govstack.threat_service.controller.exception.NotFoundException;
-import global.govstack.threat_service.controller.exception.UnauthorizedException;
 import global.govstack.threat_service.dto.broadcast.BroadcastDto;
 import global.govstack.threat_service.dto.broadcast.ThreatIdDto;
 import global.govstack.threat_service.repository.entity.BroadcastStatus;
 import global.govstack.threat_service.service.BroadcastService;
-import global.govstack.threat_service.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +21,6 @@ import java.util.UUID;
 public class BroadcastControllerImpl implements BroadcastControllerInterface {
 
     private final BroadcastService broadcastService;
-    private final UserService userService;
 
     @Override
     public Page<BroadcastDto> getAllBroadcasts(String country, boolean active, UUID userId, BroadcastStatus status, Pageable pageable) {
@@ -48,15 +45,12 @@ public class BroadcastControllerImpl implements BroadcastControllerInterface {
 
     @Override
     public ResponseEntity<?> userCanBroadcast(UUID userId, int countryId) {
-        return ResponseEntity.ok(this.userService.canBroadcast(userId, countryId));
+        return ResponseEntity.ok(this.broadcastService.canBroadcast(userId, countryId));
     }
 
     @Override
-    public ResponseEntity<BroadcastDto> publishBroadcast(UUID broadcastId, UUID userId, BroadcastDto broadcastDto) {
-        if (this.userService.canBroadcast(userId, broadcastDto.countryId().intValue())) {
-            return ResponseEntity.ok().body(this.broadcastService.publishBroadcast(broadcastId, broadcastDto));
-        }
-        throw new UnauthorizedException("User doesn't have publish permission");
+    public BroadcastDto publishBroadcast(UUID broadcastId, UUID userId) {
+        return this.broadcastService.publishBroadcast(broadcastId, userId);
     }
 
     @Override

@@ -33,7 +33,12 @@ public class BroadcastService {
     private final BroadcastMapper broadcastMapper;
     private final IMPublisher imPublisher;
     private final ThreatService threatService;
+    private final UserService userService;
     private static final String EMPTY_STRING = "";
+
+    public boolean canBroadcast(UUID userId, int countryId) {
+        return this.userService.canBroadcast(userId, countryId);
+    }
 
     public Page<BroadcastDto> getAllBroadcasts(String country, boolean active, UUID userId, BroadcastStatus status, Pageable pageable) {
         return broadcastRepository.findAll(country, active, userId, status, pageable).map(broadcastMapper::entityToDto);
@@ -102,10 +107,8 @@ public class BroadcastService {
         throw new InternalServerException("No broadcast found for ID: " + broadcastId);
     }
 
-    public BroadcastDto publishBroadcast(UUID broadcastId, BroadcastDto broadcastDto) {
-        if (broadcastDto.primaryLangMessage().isBlank() && broadcastDto.secondaryLangMessage().isBlank()) {
-            throw new InternalServerException("Broadcast has to have at least one message to be published");
-        }
+    public BroadcastDto publishBroadcast(UUID broadcastId, UUID userId) {
+        final BroadcastDto broadcastDto = validateBeforePublish(broadcastId, userId);
         final KafkaBroadcastDto kafkaBroadcastDto = new KafkaBroadcastDto(
                 broadcastId,
                 broadcastDto.title(),
@@ -121,8 +124,17 @@ public class BroadcastService {
         return this.updateBroadcast(broadcastId, broadcastDto, BroadcastStatus.PROCESSING);
     }
 
+    private BroadcastDto validateBeforePublish(UUID broadcastId, UUID userId) {
+        final Broadcast broadcast = this.broadcastRepository.findBroadcastByBroadcastUUID(broadcastId)
+                .orElseThrow(() -> new NotFoundException("Broadcast with id " + broadcastId + " not found"));
+        if (canBroadcast(userId, broadcast.getCountryId().intValue())) {
+            return this.broadcastMapper.entityToDto(broadcast);
+        }
+        throw new NotFoundException("User doesn't have publish permission");
+    }
+
     public void delete(UUID broadcastId) {
-        Broadcast broadcast = broadcastRepository.findBroadcastByBroadcastUUID(broadcastId)
+        final Broadcast broadcast = broadcastRepository.findBroadcastByBroadcastUUID(broadcastId)
                 .orElseThrow(() -> new NotFoundException("Broadcast with id " + broadcastId + " not found"));
         if (broadcast.getStatus().equals(BroadcastStatus.DRAFT)) {
             broadcastRepository.delete(broadcast);
