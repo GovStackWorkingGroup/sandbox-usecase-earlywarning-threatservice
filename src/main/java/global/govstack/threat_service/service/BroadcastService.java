@@ -118,7 +118,7 @@ public class BroadcastService {
     }
 
     public void delete(UUID broadcastId) {
-        Broadcast broadcast = broadcastRepository.getBroadcastByBroadcastUUID(broadcastId)
+        Broadcast broadcast = broadcastRepository.findBroadcastByBroadcastUUID(broadcastId)
                 .orElseThrow(() -> new NotFoundException("Broadcast with id " + broadcastId + " not found"));
         if (broadcast.getStatus().equals(BroadcastStatus.DRAFT)){
             broadcastRepository.delete(broadcast);

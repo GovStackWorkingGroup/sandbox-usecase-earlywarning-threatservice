@@ -50,7 +50,5 @@ public interface BroadcastControllerInterface {
 
     @DeleteMapping("/{broadcastId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void deleteBroadcast(@PathVariable("broadcastId") UUID broadcastId,
-                         @RequestParam("userId") UUID userId,
-                         @RequestParam("countryId") int countryId);
+    void deleteBroadcast(@PathVariable("broadcastId") UUID broadcastId);
 }

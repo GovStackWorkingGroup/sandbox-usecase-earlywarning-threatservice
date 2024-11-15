@@ -60,11 +60,7 @@ public class BroadcastControllerImpl implements BroadcastControllerInterface {
     }
 
     @Override
-    public void deleteBroadcast(UUID broadcastId, UUID userId, int countryId) {
-        if (userService.canBroadcast(userId, countryId)) {
-            broadcastService.delete(broadcastId);
-        } else {
-            throw new UnauthorizedException("User doesn't have delete permission");
-        }
+    public void deleteBroadcast(UUID broadcastId) {
+        broadcastService.delete(broadcastId);
     }
 }
