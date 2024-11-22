@@ -13,7 +13,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @Table(name = "broadcast")
-//@DynamicUpdate
 public class Broadcast {
 
     @Id

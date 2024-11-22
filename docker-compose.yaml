@@ -35,10 +35,8 @@ services:
     volumes:
       - user-db:/var/lib/postgresql/data
 
-  # Names of volumes
 volumes:
   user-db:
-#  backend:
 
 networks:
   shared_network:
