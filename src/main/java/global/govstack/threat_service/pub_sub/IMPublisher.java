@@ -36,6 +36,7 @@ public class IMPublisher {
                     .to("Information Mediator BB")
                     .content("Broadcast sent to Information Mediator")
                     .timeStamp(LocalDateTime.now())
+                    .broadcastId(broadcastDto.broadcastId().toString())
                     .build()));
         } catch (JsonProcessingException e) {
             throw new InternalServerException("Something went wrong with publishing message: " + e);
