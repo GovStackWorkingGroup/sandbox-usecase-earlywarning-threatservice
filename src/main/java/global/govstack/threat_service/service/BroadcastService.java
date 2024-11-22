@@ -118,7 +118,8 @@ public class BroadcastService {
                 broadcastDto.primaryLangMessage(),
                 broadcastDto.secondaryLangMessage(),
                 broadcastDto.countryId(),
-                broadcastDto.affectedCounties().stream().map(CreateBroadcastCountyDto::countyId).toList()
+                broadcastDto.affectedCounties().stream().map(CreateBroadcastCountyDto::countyId).toList(),
+                userId
         );
         this.imPublisher.publishBroadcast(kafkaBroadcastDto);
         return this.updateBroadcast(broadcastId, broadcastDto, BroadcastStatus.PROCESSING);
