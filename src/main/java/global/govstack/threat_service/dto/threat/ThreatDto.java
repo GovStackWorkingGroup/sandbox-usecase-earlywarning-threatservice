@@ -15,6 +15,7 @@ public record ThreatDto(
     String range,
     String periodStart,
     String periodEnd,
-    boolean active
+    boolean active,
+    String createdAt
 ) {
 }
