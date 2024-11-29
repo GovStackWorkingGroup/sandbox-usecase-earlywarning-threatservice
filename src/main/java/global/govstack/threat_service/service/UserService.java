@@ -38,18 +38,32 @@ public class UserService {
 
     public boolean canBroadcast(UUID userId, int countryId) {
         log.info("check if the administrator has broadcasting rights");
-        final String finalUrl = "users/canBroadcast?userUuid=" +
+        final String endpoint = "users/canBroadcast?userUuid=" +
                 userId.toString() +
                 "&countryId=" +
                 countryId;
         try {
-            this.restRequest(finalUrl, HttpMethod.GET, Void.class);
+            this.restRequest(endpoint, HttpMethod.GET, Void.class);
             return Boolean.TRUE;
         } catch (ResponseStatusException e) {
             if (e.getStatusCode().equals(HttpStatus.SERVICE_UNAVAILABLE)) {
                 throw new UnauthorizedException("User is not authorized to broadcast");
             }
             throw new InternalServerException("Communication to user-service failed");
+        }
+    }
+
+    public boolean checkUser(UUID userId) {
+        log.info("Validate user");
+        final String endpoint = "users/checkUser?userId=" + userId;
+        try {
+            this.restRequest(endpoint, HttpMethod.GET, Void.class);
+            return Boolean.TRUE;
+        } catch (ResponseStatusException e) {
+            if (e.getStatusCode().equals(HttpStatus.SERVICE_UNAVAILABLE)) {
+                return Boolean.FALSE;
+            }
+            throw new RuntimeException("Communication to user-service failed");
         }
     }
 

@@ -1,16 +1,10 @@
 package global.govstack.threat_service.pub_sub;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import global.govstack.threat_service.controller.exception.InternalServerException;
-import global.govstack.threat_service.dto.broadcast.KafkaBroadcastDto;
-import global.govstack.threat_service.dto.broadcast.LogInfoDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDateTime;
 
 @Slf4j
 @Component
@@ -21,25 +15,17 @@ public class IMPublisher {
     private static final Integer PARTITION = 0;
 
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper mapper;
 
-    public void publishBroadcast(KafkaBroadcastDto broadcastDto) {
+    public void publishBroadcast(String message) {
         log.info("Sending broadcast to IM");
         try {
             this.kafkaTemplate.send(
                     BROADCAST_TOPIC,
                     PARTITION,
                     "some key",
-                    mapper.writeValueAsString(broadcastDto));
-            this.publishServiceLogging(this.mapper.writeValueAsString(LogInfoDto.builder()
-                    .from("Threat Service")
-                    .to("Information Mediator BB")
-                    .content("Broadcast sent to Information Mediator")
-                    .timeStamp(LocalDateTime.now())
-                    .broadcastId(broadcastDto.broadcastId().toString())
-                    .build()));
-        } catch (JsonProcessingException e) {
-            throw new InternalServerException("Something went wrong with publishing message: " + e);
+                    message);
+        } catch (Exception e) {
+            throw new InternalServerException("Something went wrong with publishing to broadcast topic: " + e);
         }
     }
 
@@ -52,7 +38,7 @@ public class IMPublisher {
                     "some key",
                     message);
         } catch (Exception e) {
-            throw new InternalServerException("Something went wrong with publishing message: " + e);
+            throw new InternalServerException("Something went wrong with publishing to service log: " + e);
         }
     }
 }
