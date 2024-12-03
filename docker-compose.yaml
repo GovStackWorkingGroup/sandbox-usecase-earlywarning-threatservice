@@ -4,42 +4,15 @@ services:
     container_name: threat-service
     build:
       context: .
-    depends_on:
-      - database
-    restart: always
     ports:
       - '8081:8081'
     networks:
       - shared_network
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://database:5432/threat-db"
+      SPRING_DATASOURCE_URL: "jdbc:h2:mem:threat-db"
       SPRING_DATASOURCE_USERNAME: "user"
       SPRING_DATASOURCE_PASSWORD: "password"
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-
-  database:
-    container_name: threat-database
-    image: postgres:14-alpine
-    restart: always
-    environment:
-      POSTGRES_DB: 'threat-db'
-      POSTGRES_USER: 'user'
-      POSTGRES_PASSWORD: 'password'
-      MYSQL_ROOT_PASSWORD: 'root-pass'
-    ports:
-      - '5432:5432'
-    networks:
-      - shared_network
-    expose:
-      - '5432'
-    volumes:
-      - user-db:/var/lib/postgresql/data
-
-  # Names of volumes
-volumes:
-  user-db:
-#  backend:
-
 networks:
   shared_network:
     external: true

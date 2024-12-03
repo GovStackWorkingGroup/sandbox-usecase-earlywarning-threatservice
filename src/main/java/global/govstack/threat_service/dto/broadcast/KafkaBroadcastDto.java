@@ -8,14 +8,15 @@ import java.util.UUID;
 
 @Builder
 public record KafkaBroadcastDto(
-    UUID broadcastId,
-    String broadcastTitle,
-    String channelType,
-    LocalDateTime startDate,
-    LocalDateTime endDate,
-    String textPrimaryLang,
-    String textSecondaryLang,
-    Long countryId,
-    List<Long> countyId
+        UUID broadcastId,
+        String broadcastTitle,
+        String channelType,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        String textPrimaryLang,
+        String textSecondaryLang,
+        Long countryId,
+        List<Long> countyId,
+        UUID publisher
 ) {
 }

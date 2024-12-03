@@ -1,11 +1,10 @@
 package global.govstack.threat_service.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import global.govstack.threat_service.controller.exception.InternalServerException;
 import global.govstack.threat_service.controller.exception.NotFoundException;
-import global.govstack.threat_service.dto.broadcast.BroadcastDto;
-import global.govstack.threat_service.dto.broadcast.CreateBroadcastCountyDto;
-import global.govstack.threat_service.dto.broadcast.KafkaBroadcastDto;
-import global.govstack.threat_service.dto.broadcast.ThreatIdDto;
+import global.govstack.threat_service.dto.broadcast.*;
 import global.govstack.threat_service.mapper.BroadcastMapper;
 import global.govstack.threat_service.pub_sub.IMPublisher;
 import global.govstack.threat_service.repository.BroadcastRepository;
@@ -34,6 +33,7 @@ public class BroadcastService {
     private final IMPublisher imPublisher;
     private final ThreatService threatService;
     private final UserService userService;
+    private final ObjectMapper mapper;
     private static final String EMPTY_STRING = "";
 
     public boolean canBroadcast(UUID userId, int countryId) {
@@ -118,10 +118,24 @@ public class BroadcastService {
                 broadcastDto.primaryLangMessage(),
                 broadcastDto.secondaryLangMessage(),
                 broadcastDto.countryId(),
-                broadcastDto.affectedCounties().stream().map(CreateBroadcastCountyDto::countyId).toList()
+                broadcastDto.affectedCounties().stream().map(CreateBroadcastCountyDto::countyId).toList(),
+                userId
         );
-        this.imPublisher.publishBroadcast(kafkaBroadcastDto);
-        return this.updateBroadcast(broadcastId, broadcastDto, BroadcastStatus.PROCESSING);
+        try {
+            this.imPublisher.publishBroadcast(this.mapper.writeValueAsString(kafkaBroadcastDto));
+            if (!this.userService.checkUser(userId)) {
+                this.imPublisher.publishServiceLogging(this.mapper.writeValueAsString(LogInfoDto.builder()
+                        .from("Threat Service")
+                        .to("Information Mediator BB")
+                        .content("Broadcast sent to Information Mediator")
+                        .timeStamp(LocalDateTime.now())
+                        .broadcastId(broadcastDto.broadcastId().toString())
+                        .build()));
+            }
+            return this.updateBroadcast(broadcastId, broadcastDto, BroadcastStatus.PROCESSING);
+        } catch (JsonProcessingException e) {
+            throw new InternalServerException("Something went wrong with publishing message: " + e);
+        }
     }
 
     private BroadcastDto validateBeforePublish(UUID broadcastId, UUID userId) {

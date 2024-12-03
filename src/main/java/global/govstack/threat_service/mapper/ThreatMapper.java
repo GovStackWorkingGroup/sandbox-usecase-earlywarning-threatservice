@@ -15,6 +15,7 @@ public interface ThreatMapper {
   @Mapping(source = "threatUUID", target = "threatId")
   @Mapping(source = "periodStart", target = "periodStart", dateFormat = "yyyy-MM-dd'T'HH:mm:ss")
   @Mapping(source = "periodEnd", target = "periodEnd", dateFormat = "yyyy-MM-dd'T'HH:mm:ss")
+  @Mapping(source = "createdAt", target = "createdAt", dateFormat = "yyyy-MM-dd'T'HH:mm:ss")
   @Mapping(source = "threatEvent", target = "active", qualifiedByName = "calculateActive")
   ThreatDto entityToDto(ThreatEvent threatEvent);
 
