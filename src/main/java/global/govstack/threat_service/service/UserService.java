@@ -53,20 +53,6 @@ public class UserService {
         }
     }
 
-    public boolean checkUser(UUID userId) {
-        log.info("Validate user");
-        final String endpoint = "users/checkUser?userId=" + userId;
-        try {
-            this.restRequest(endpoint, HttpMethod.GET, Void.class);
-            return Boolean.TRUE;
-        } catch (ResponseStatusException e) {
-            if (e.getStatusCode().equals(HttpStatus.SERVICE_UNAVAILABLE)) {
-                return Boolean.FALSE;
-            }
-            throw new RuntimeException("Communication to user-service failed");
-        }
-    }
-
     public List<CountryDto> getAllCountries() {
         log.info("get all countries");
         var countries = (String) this.restRequest("utility/getAllCountries", HttpMethod.GET, String.class);

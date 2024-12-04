@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class IMPublisher {
     private static final String BROADCAST_TOPIC = "broadcast-topic";
-    private static final String LOGGING_TOPIC = "log-topic";
     private static final Integer PARTITION = 0;
 
     private final KafkaTemplate<String, String> kafkaTemplate;
@@ -29,16 +28,4 @@ public class IMPublisher {
         }
     }
 
-    public void publishServiceLogging(String message) {
-        log.info("Sending service logging to IM");
-        try {
-            this.kafkaTemplate.send(
-                    LOGGING_TOPIC,
-                    PARTITION,
-                    "some key",
-                    message);
-        } catch (Exception e) {
-            throw new InternalServerException("Something went wrong with publishing to service log: " + e);
-        }
-    }
 }

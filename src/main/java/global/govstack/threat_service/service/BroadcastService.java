@@ -100,7 +100,6 @@ public class BroadcastService {
             if (status.equals(BroadcastStatus.PROCESSING)) {
                 updatedBroadcast.setInitiated(LocalDateTime.now());
             }
-
             this.broadcastRepository.save(updatedBroadcast);
             return this.broadcastMapper.entityToDto(updatedBroadcast);
         }
@@ -123,15 +122,6 @@ public class BroadcastService {
         );
         try {
             this.imPublisher.publishBroadcast(this.mapper.writeValueAsString(kafkaBroadcastDto));
-            if (!this.userService.checkUser(userId)) {
-                this.imPublisher.publishServiceLogging(this.mapper.writeValueAsString(LogInfoDto.builder()
-                        .from("Threat Service")
-                        .to("Information Mediator BB")
-                        .content("Broadcast sent to Information Mediator")
-                        .timeStamp(LocalDateTime.now())
-                        .broadcastId(broadcastDto.broadcastId().toString())
-                        .build()));
-            }
             return this.updateBroadcast(broadcastId, broadcastDto, BroadcastStatus.PROCESSING);
         } catch (JsonProcessingException e) {
             throw new InternalServerException("Something went wrong with publishing message: " + e);
